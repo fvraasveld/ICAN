@@ -1,0 +1,2577 @@
+// CRPS TREATMENT DO FILE
+
+pwd
+cd "/Users/mrh77/Downloads"
+pwd
+
+
+pwd
+cd "/Users/mrh77/Partners HealthCare Dropbox/Floris Raasveld/ICAN research/f. CRPS studies/Retrospective/Data"
+pwd
+
+
+
+tab crps_mech_injury_text if inciting_event_nerve ==1 & crps_type == 1
+
+tab crps_mech_injury_text if inciting_event_nerve ==1 & crps_type == 1
+
+sort by
+
+sort crps_type inciting_event_nerve
+
+
+gen sort_var = (crps_type == 1 & inciting_event_nerve == 1)
+sort sort_var
+
+
+// mrns in final inclusion
+
+
+summ crps_visits_ican if crps_visits_ican>0 , d 
+summ crps_visits_mgh if crps_visits_mgh>0 , d
+
+summ crps_surgeries_freq if crps_surgeries_freq>0 , d 
+summ crps_surgeries_freq_ican if crps_surgeries_freq_ican>0 , d
+
+keep if inlist(mrn, 2523880, 3999029, 3540729, 4268972, 2064174, 3860076, 3902739, 3920064, 2982329, 4111516, 6084970, 6238031, 3808702, 1896675, 7508899, 2329727, 4610738, 5713794, 5073624, 2441103, 6679635, 5220032, 5272949, 2728424, 8039036, 5302488, 5070655, 4624273, 5449970, 1851105, 7213628, 5719258, 7188910, 6926122, 5937195, 6510725, 6162657, 3418710, 7050767, 6959711, 7072380, 2496661, 6968126, 7020177, 7296235, 7526978, 4195706, 2809424, 3131854, 8144619, 6422626, 7068236, 7144790)
+
+
+
+
+
+
+tab mrn // two bilateral
+drop if  crps_mentioned_yesno ==.
+
+
+
+drop if record_id == 1970 // bilateral
+
+
+tab group_1_agreement, m // n=7 (13.2)
+tab group_2_agreement, m // n=10 (18.9)
+tab group_3_agreement, m // n=22 (41.5)
+tab group_0_agreement, m // n=14 (26.4)
+
+
+
+
+
+//renaming variables
+rename alcohol_use alcoholism
+rename smoking_or_nicotine smoking
+rename psych_comorbs___1 depression
+rename psych_comorbs___2 anxiety
+rename psych_comorbs___3 pers_disord
+rename psych_comorbs___4 ptsd
+rename amp1_primary_etiology amp1_indication
+rename amp1_pain_mgmt_prevt___1 type_surg_1
+rename amp1_pain_mgmt_prevt___2 type_surg_2
+rename amp1_pain_mgmt_prevt___3 type_surg_3
+rename type_surg_1 type_surg_tmr
+rename type_surg_2 type_surg_rpni
+rename type_surg_3 type_surg_other
+rename amp1_pain_mgmt_prevt_other___1 nerve_surg_tmr_radial
+rename amp1_pain_mgmt_prevt_v_2 nerve_surg_tmr_radial_superf
+rename amp1_pain_mgmt_prevt_other___2 nerve_surg_tmr_median
+rename amp1_pain_mgmt_prevt_other___3 nerve_surg_tmr_ulnar
+rename amp1_pain_mgmt_prevt_other___4 nerve_surg_tmr_axillary
+rename amp1_pain_mgmt_prevt_other___5 nerve_surg_tmr_musculocutaneous
+rename amp1_pain_mgmt_prevt_other___6 nerve_surg_tmr_intercostobrach
+rename amp1_pain_mgmt_prevt_other___7 nerve_surg_tmr_labc
+rename amp1_pain_mgmt_prevt_other___8 nerve_surg_tmr_mabc
+rename amp1_pain_mgmt_prevt_other___9 nerve_surg_tmr_digital
+rename amp1_pain_mgmt_prevt_v_3 nerve_surg_tmr_peroneal_superf
+rename amp1_pain_mgmt_prevt_v_4 nerve_surg_tmr_peroneal_common
+rename amp1_pain_mgmt_prevt_v_5 nerve_surg_tmr_peroneal_deep
+rename amp1_pain_mgmt_prevt_v_6 nerve_surg_tmr_saphenous
+rename amp1_pain_mgmt_prevt_v_7 nerve_surg_tmr_tibial
+rename amp1_pain_mgmt_prevt_v_8 nerve_surg_tmr_femoral
+rename amp1_pain_mgmt_prevt_v_9 nerve_surg_tmr_sciatic
+rename amp1_pain_mgmt_prevt_v_10 nerve_surg_tmr_tibial_lat
+rename amp1_pain_mgmt_prevt_v_11 nerve_surg_tmr_tibial_med
+rename amp1_pain_mgmt_prevt_v_12 nerve_surg_tmr_sural
+rename amp1_pain_mgmt_prevt_v_13 nerve_surg_tmr_sural_lat
+rename amp1_pain_mgmt_prevt_v_14 nerve_surg_tmr_sural_med
+rename amp1_pain_mgmt_prevt_v_15 nerve_surg_tmr_other
+rename rpni_nerves_used___1 nerve_surg_rpni_radial
+rename rpni_nerves_used___23 nerve_surg_rpni_radial_superf
+rename rpni_nerves_used___2 nerve_surg_rpni_median
+rename rpni_nerves_used___3 nerve_surg_rpni_ulnar
+rename rpni_nerves_used___4 nerve_surg_rpni_axillary
+rename rpni_nerves_used___5 nerve_surg_rpni_musculocutaneous
+rename rpni_nerves_used___6 nerve_surg_rpni_intercostobrach
+rename rpni_nerves_used___7 nerve_surg_rpni_labc
+rename rpni_nerves_used___8 nerve_surg_rpni_mabc
+rename rpni_nerves_used___9 nerve_surg_rpni_digital
+rename rpni_nerves_used___10 nerve_surg_rpni_peroneal_superf
+rename rpni_nerves_used___11 nerve_surg_rpni_peroneal_common
+rename rpni_nerves_used___12 nerve_surg_rpni_peroneal_deep
+rename rpni_nerves_used___13 nerve_surg_rpni_saphenous
+rename rpni_nerves_used___14 nerve_surg_rpni_tibial
+rename rpni_nerves_used___22 nerve_surg_rpni_femoral
+rename rpni_nerves_used___15 nerve_surg_rpni_sciatic
+rename rpni_nerves_used___16 nerve_surg_rpni_tibial_lat
+rename rpni_nerves_used___17 nerve_surg_rpni_tibial_med
+rename rpni_nerves_used___18 nerve_surg_rpni_sural
+rename rpni_nerves_used___19 nerve_surg_rpni_sural_lat
+rename rpni_nerves_used___20 nerve_surg_rpni_sural_med
+rename rpni_nerves_used___21 nerve_surg_rpni_other
+rename amp1_pain_mgmt_clini_v_16 nerve_surg_neuroma_radial
+rename amp1_pain_mgmt_clini_v_17 nerve_surg_neuroma_radial_superf
+rename amp1_pain_mgmt_clini_v_18 nerve_surg_neuroma_median
+rename amp1_pain_mgmt_clini_v_19 nerve_surg_neuroma_ulnar
+rename amp1_pain_mgmt_clini_v_20 nerve_surg_neuroma_axillary
+rename amp1_pain_mgmt_clini_v_21 nerve_surg_neuroma_musculocut
+rename nerve_surg_tmr_musculocutaneous nerve_surg_tmr_musculocut
+rename nerve_surg_rpni_musculocutaneous nerve_surg_rpni_musculocut
+ rename amp1_pain_mgmt_clini_v_22 nerve_surg_neuroma_intercostobr
+ rename nerve_surg_tmr_intercostobrach nerve_surg_tmr_intercostobr
+rename nerve_surg_rpni_intercostobrach nerve_surg_rpni_intercostobr
+rename amp1_pain_mgmt_clini_v_23 nerve_surg_neuroma_labc
+rename amp1_pain_mgmt_clini_v_24 nerve_surg_neuroma_mabc
+rename amp1_pain_mgmt_clini_v_25 nerve_surg_neuroma_digital
+rename amp1_pain_mgmt_clini_v_26 nerve_surg_neuroma_peroneal_sf
+ rename amp1_pain_mgmt_clini_v_27 nerve_surg_neuroma_peroneal_cm
+rename amp1_pain_mgmt_clini_v_28 nerve_surg_neuroma_peroneal_deep
+rename amp1_pain_mgmt_clini_v_29 nerve_surg_neuroma_saphenous
+rename amp1_pain_mgmt_clini_v_30 nerve_surg_neuroma_tibial
+rename amp1_pain_mgmt_clini_v_31 nerve_surg_neuroma_femoral
+rename amp1_pain_mgmt_clini_v_32 nerve_surg_neuroma_sciatic
+rename amp1_pain_mgmt_clini_v_33 nerve_surg_neuroma_tibial_lat
+rename amp1_pain_mgmt_clini_v_34 nerve_surg_neuroma_tibial_med
+rename amp1_pain_mgmt_clini_v_35 nerve_surg_neuroma_sural
+rename amp1_pain_mgmt_clini_v_36 nerve_surg_neuroma_sural_lat
+rename amp1_pain_mgmt_clini_v_37 nerve_surg_neuroma_sural_med
+rename amp1_pain_mgmt_clini_v_38 nerve_surg_neuroma_other
+rename type_surgery_revision___1 type_rev1_tmr
+rename type_surgery_revision___2 type_rev1_rpni
+rename type_surgery_revision___3 type_rev1_other
+rename tmr_rev_nerves_used___1 nerve_rev1_tmr_radial
+rename tmr_rev_nerves_used___23 nerve_rev1_tmr_radial_superf
+rename tmr_rev_nerves_used___2 nerve_rev1_tmr_median
+rename tmr_rev_nerves_used___3 nerve_rev1_tmr_ulnar
+rename tmr_rev_nerves_used___4 nerve_rev1_tmr_axillary
+rename tmr_rev_nerves_used___5 nerve_rev1_tmr_musculocut
+rename tmr_rev_nerves_used___6 nerve_rev1_tmr_intercostobr
+rename tmr_rev_nerves_used___7 nerve_rev1_tmr_labc
+rename tmr_rev_nerves_used___8 nerve_rev1_tmr_mabc
+rename tmr_rev_nerves_used___9 nerve_rev1_tmr_digital
+rename tmr_rev_nerves_used___10 nerve_rev1_tmr_peroneal_sf
+rename tmr_rev_nerves_used___11 nerve_rev1_tmr_peroneal_cm
+rename tmr_rev_nerves_used___12 nerve_rev1_tmr_peroneal_dp
+rename tmr_rev_nerves_used___13 nerve_rev1_tmr_saphenous
+rename tmr_rev_nerves_used___14 nerve_rev1_tmr_tibial
+rename tmr_rev_nerves_used___22 nerve_rev1_tmr_femoral
+rename tmr_rev_nerves_used___15 nerve_rev1_tmr_sciatic
+rename tmr_rev_nerves_used___16 nerve_rev1_tmr_tibial_lat
+rename tmr_rev_nerves_used___17 nerve_rev1_tmr_tibial_med
+rename tmr_rev_nerves_used___18 nerve_rev1_tmr_sural
+rename tmr_rev_nerves_used___19 nerve_rev1_tmr_sural_lat
+rename tmr_rev_nerves_used___20 nerve_rev1_tmr_sural_med
+rename tmr_rev_nerves_used___21 nerve_rev1_tmr_other
+rename rpni_rev_nerves_used___1 nerve_rev1_rpni_radial
+rename rpni_rev_nerves_used___23 nerve_rev1_rpni_radial_superf
+rename rpni_rev_nerves_used___2 nerve_rev1_rpni_median
+rename rpni_rev_nerves_used___3 nerve_rev1_rpni_ulnar
+rename rpni_rev_nerves_used___4 nerve_rev1_rpni_axillary
+rename rpni_rev_nerves_used___5 nerve_rev1_rpni_musculocut
+rename rpni_rev_nerves_used___6 nerve_rev1_rpni_intercostobrach
+rename rpni_rev_nerves_used___7 nerve_rev1_rpni_labc
+rename rpni_rev_nerves_used___8 nerve_rev1_rpni_mabc
+rename rpni_rev_nerves_used___9 nerve_rev1_rpni_digital
+rename rpni_rev_nerves_used___10 nerve_rev1_rpni_peroneal_sf
+rename rpni_rev_nerves_used___11 nerve_rev1_rpni_peroneal_cm
+rename rpni_rev_nerves_used___12 nerve_rev1_rpni_peroneal_deep
+rename rpni_rev_nerves_used___13 nerve_rev1_rpni_saphenous
+rename rpni_rev_nerves_used___14 nerve_rev1_rpni_tibial
+rename rpni_rev_nerves_used___22 nerve_rev1_rpni_femoral
+rename rpni_rev_nerves_used___15 nerve_rev1_rpni_sciatic
+rename rpni_rev_nerves_used___16 nerve_rev1_rpni_tibial_lat
+rename rpni_rev_nerves_used___17 nerve_rev1_rpni_tibial_med
+rename rpni_rev_nerves_used___18 nerve_rev1_rpni_sural
+rename rpni_rev_nerves_used___19 nerve_rev1_rpni_sural_lat
+rename rpni_rev_nerves_used___20 nerve_rev1_rpni_sural_med
+rename rpni_rev_nerves_used___21 nerve_rev1_rpni_other
+rename neuroma_rev___1 nerve_rev1_neuroma_radial
+rename neuroma_rev___23 nerve_rev1_neuroma_radial_superf
+rename neuroma_rev___2 nerve_rev1_neuroma_median
+rename neuroma_rev___3 nerve_rev1_neuroma_ulnar
+rename neuroma_rev___4 nerve_rev1_neuroma_axillary
+rename neuroma_rev___5 nerve_rev1_neuroma_musculocut
+rename neuroma_rev___6 nerve_rev1_neuroma_intercostobr
+rename neuroma_rev___7 nerve_rev1_neuroma_labc
+rename neuroma_rev___8 nerve_rev1_neuroma_mabc
+rename neuroma_rev___9 nerve_rev1_neuroma_digital
+rename neuroma_rev___10 nerve_rev1_neuroma_peroneal_sf
+rename neuroma_rev___11 nerve_rev1_neuroma_peroneal_cm
+rename neuroma_rev___12 nerve_rev1_neuroma_peroneal_deep
+rename neuroma_rev___13 nerve_rev1_neuroma_saphenous
+rename neuroma_rev___14 nerve_rev1_neuroma_tibial
+rename neuroma_rev___22 nerve_rev1_neuroma_femoral
+rename neuroma_rev___15 nerve_rev1_neuroma_sciatic
+rename neuroma_rev___16 nerve_rev1_neuroma_tibial_lat
+rename neuroma_rev___17 nerve_rev1_neuroma_tibial_med
+rename neuroma_rev___18 nerve_rev1_neuroma_sural
+rename neuroma_rev___19 nerve_rev1_neuroma_sural_lat
+rename neuroma_rev___20 nerve_rev1_neuroma_sural_med
+rename neuroma_rev___21 nerve_rev1_neuroma_other
+rename date_surgery_revision date_surgery_rev1
+rename date_surgery_revision2 date_surgery_rev2
+rename date_surgery_revision3 date_surgery_rev3
+rename type_surgery_revision2___1 type_rev2_tmr
+rename type_surgery_revision2___2 type_rev2_rpni
+rename type_surgery_revision2___3 type_rev2_other
+rename type_surgery_revision3___1 type_rev3_tmr
+rename type_surgery_revision3___2 type_rev_rpni
+rename type_rev_rpni type_rev3_rpni
+rename type_surgery_revision3___3 type_rev3_other
+rename tmr_rev2_nerves_used___1 nerve_rev2_tmr_radial
+rename tmr_rev2_nerves_used___23 nerve_rev2_tmr_radial_superf
+rename tmr_rev2_nerves_used___2 nerve_rev2_tmr_median
+rename tmr_rev2_nerves_used___3 nerve_rev2_tmr_ulnar
+rename tmr_rev2_nerves_used___4 nerve_rev2_tmr_axillary
+rename tmr_rev2_nerves_used___5 nerve_rev2_tmr_musculocut
+rename tmr_rev2_nerves_used___6 nerve_rev2_tmr_intercostobr
+rename tmr_rev2_nerves_used___7 nerve_rev2_tmr_labc
+rename tmr_rev2_nerves_used___8 nerve_rev2_tmr_mabc
+rename tmr_rev2_nerves_used___9 nerve_rev2_tmr_digital
+rename tmr_rev2_nerves_used___10 nerve_rev2_tmr_peroneal_sf
+rename tmr_rev2_nerves_used___11 nerve_rev2_tmr_peroneal_cm
+rename tmr_rev2_nerves_used___12 nerve_rev2_tmr_peroneal_deep
+rename tmr_rev2_nerves_used___13 nerve_rev2_tmr_saphenous
+rename tmr_rev2_nerves_used___14 nerve_rev2_tmr_tibial
+rename tmr_rev2_nerves_used___22 nerve_rev2_tmr_femoral
+rename tmr_rev2_nerves_used___15 nerve_rev2_tmr_sciatic
+rename tmr_rev2_nerves_used___16 nerve_rev2_tmr_tibial_lat
+rename tmr_rev2_nerves_used___17 nerve_rev2_tmr_tibial_med
+rename tmr_rev2_nerves_used___18 nerve_rev2_tmr_sural
+rename tmr_rev2_nerves_used___19 nerve_rev2_tmr_sural_lat
+rename tmr_rev2_nerves_used___20 nerve_rev2_tmr_sural_med
+rename tmr_rev2_nerves_used___21 nerve_rev2_tmr_other
+rename rpni_rev2_nerves_used___1 nerve_rev2_rpni_radial
+rename rpni_rev2_nerves_used___23 nerve_rev2_rpni_radial_superf
+rename rpni_rev2_nerves_used___2 nerve_rev2_rpni_median
+rename rpni_rev2_nerves_used___3 nerve_rev2_rpni_ulnar
+rename rpni_rev2_nerves_used___4 nerve_rev2_rpni_axillary
+rename rpni_rev2_nerves_used___5 nerve_rev2_rpni_musculocut
+rename rpni_rev2_nerves_used___6 nerve_rev2_rpni_intercostobr
+rename rpni_rev2_nerves_used___7 nerve_rev2_rpni_labc
+rename rpni_rev2_nerves_used___8 nerve_rev2_rpni_mabc
+rename rpni_rev2_nerves_used___9 nerve_rev2_rpni_digital
+rename rpni_rev2_nerves_used___10 nerve_rev2_rpni_peroneal_sf
+rename rpni_rev2_nerves_used___11 nerve_rev2_rpni_peroneal_cm
+rename rpni_rev2_nerves_used___12 nerve_rev2_rpni_peroneal_deep
+rename rpni_rev2_nerves_used___13 nerve_rev2_rpni_saphenous
+rename rpni_rev2_nerves_used___14 nerve_rev2_rpni_tibial
+rename rpni_rev2_nerves_used___22 nerve_rev2_rpni_femoral
+rename rpni_rev2_nerves_used___15 nerve_rev2_rpni_sciatic
+rename rpni_rev2_nerves_used___16 nerve_rev2_rpni_tibial_lat
+rename rpni_rev2_nerves_used___17 nerve_rev2_rpni_tibial_med
+rename rpni_rev2_nerves_used___18 nerve_rev2_rpni_sural
+rename rpni_rev2_nerves_used___19 nerve_rev2_rpni_sural_lat
+rename rpni_rev2_nerves_used___20 nerve_rev2_rpni_sural_med
+rename rpni_rev2_nerves_used___21 nerve_rev2_rpni_other
+rename neuroma_rev2___1 nerve_rev2_neuroma_radial
+rename neuroma_rev2___23 nerve_rev2_neuroma_radial_superf
+rename neuroma_rev2___2 nerve_rev2_neuroma_median
+rename neuroma_rev2___3 nerve_rev2_neuroma_ulnar
+rename neuroma_rev2___4 nerve_rev2_neuroma_axillary
+rename neuroma_rev2___5 nerve_rev2_neuroma_musculocut
+rename neuroma_rev2___6 nerve_rev2_neuroma_intercostobr
+rename neuroma_rev2___7 nerve_rev2_neuroma_labc
+rename neuroma_rev2___8 nerve_rev2_neuroma_mabc
+rename neuroma_rev2___9 nerve_rev2_neuroma_digital
+rename neuroma_rev2___10 nerve_rev2_neuroma_peroneal_sf
+rename neuroma_rev2___11 nerve_rev2_neuroma_peroneal_cm
+rename neuroma_rev2___12 nerve_rev2_neuroma_peroneal_deep
+rename neuroma_rev2___13 nerve_rev2_neuroma_saphenous
+rename neuroma_rev2___14 nerve_rev2_neuroma_tibial
+rename neuroma_rev2___22 nerve_rev2_neuroma_femoral
+rename neuroma_rev2___15 nerve_rev2_neuroma_sciatic
+rename neuroma_rev2___16 nerve_rev2_neuroma_tibial_lat
+rename neuroma_rev2___17 nerve_rev2_neuroma_tibial_med
+rename neuroma_rev2___18 nerve_rev2_neuroma_sural
+rename neuroma_rev2___19 nerve_rev2_neuroma_sural_lat
+rename neuroma_rev2___20 nerve_rev2_neuroma_sural_med
+rename neuroma_rev2___21 nerve_rev2_neuroma_other
+rename tmr_rev3_nerves_used___1 nerve_rev3_tmr_radial
+rename tmr_rev3_nerves_used___2 nerve_rev3_tmr_radial_superf
+rename nerve_rev3_tmr_radial_superf nerve_rev3_tmr_median
+rename tmr_rev3_nerves_used___3 nerve_rev3_tmr_ulnar
+rename tmr_rev3_nerves_used___4 nerve_rev3_tmr_axillary
+rename tmr_rev3_nerves_used___5 nerve_rev3_tmr_musculocut
+rename tmr_rev3_nerves_used___6 nerve_rev3_tmr_intercostobr
+rename tmr_rev3_nerves_used___7 nerve_rev3_tmr_labc
+rename tmr_rev3_nerves_used___8 nerve_rev3_tmr_mabc
+rename tmr_rev3_nerves_used___9 nerve_rev3_tmr_digital
+rename tmr_rev3_nerves_used___10 nerve_rev3_tmr_peroneal_sf
+rename tmr_rev3_nerves_used___11 nerve_rev3_tmr_peroneal_cm
+rename tmr_rev3_nerves_used___12 nerve_rev3_tmr_peroneal_deep
+rename tmr_rev3_nerves_used___13 nerve_rev3_tmr_saphenous
+rename tmr_rev3_nerves_used___14 nerve_rev3_tmr_tibial
+rename tmr_rev3_nerves_used___22 nerve_rev3_tmr_femoral
+rename tmr_rev3_nerves_used___15 nerve_rev3_tmr_sciatic
+rename tmr_rev3_nerves_used___16 nerve_rev3_tmr_tibial_lat
+rename tmr_rev3_nerves_used___17 nerve_rev3_tmr_tibial_med
+rename tmr_rev3_nerves_used___18 nerve_rev3_tmr_sural
+rename tmr_rev3_nerves_used___19 nerve_rev3_tmr_sural_lat
+rename tmr_rev3_nerves_used___20 nerve_rev3_tmr_sural_med
+rename tmr_rev3_nerves_used___21 nerve_rev3_tmr_other
+rename rpni_rev3_nerves_used___1 nerve_rev3_rpni_radial
+rename rpni_rev3_nerves_used___2 nerve_rev3_rpni_median
+rename rpni_rev3_nerves_used___3 nerve_rev3_rpni_ulnar
+rename rpni_rev3_nerves_used___4 nerve_rev3_rpni_axillary
+rename rpni_rev3_nerves_used___5 nerve_rev3_rpni_musculocut
+rename rpni_rev3_nerves_used___6 nerve_rev3_rpni_intercostobr
+rename rpni_rev3_nerves_used___7 nerve_rev3_rpni_labc
+rename rpni_rev3_nerves_used___8 nerve_rev3_rpni_mabc
+rename rpni_rev3_nerves_used___9 nerve_rev3_rpni_digital
+rename rpni_rev3_nerves_used___10 nerve_rev3_rpni_peroneal_sf
+rename rpni_rev3_nerves_used___11 nerve_rev3_rpni_peroneal_cm
+rename rpni_rev3_nerves_used___12 nerve_rev3_rpni_peroneal_deep
+rename rpni_rev3_nerves_used___13 nerve_rev3_rpni_saphenous
+rename rpni_rev3_nerves_used___14 nerve_rev3_rpni_tibial
+rename rpni_rev3_nerves_used___22 nerve_rev3_rpni_femoral
+rename rpni_rev3_nerves_used___15 nerve_rev3_rpni_sciatic
+rename rpni_rev3_nerves_used___16 nerve_rev3_rpni_tibial_lat
+rename rpni_rev3_nerves_used___17 nerve_rev3_rpni_tibial_med
+rename rpni_rev3_nerves_used___18 nerve_rev3_rpni_sural
+rename rpni_rev3_nerves_used___19 nerve_rev3_rpni_sural_lat
+rename rpni_rev3_nerves_used___20 nerve_rev3_rpni_sural_med
+rename rpni_rev3_nerves_used___21 nerve_rev3_rpni_other
+rename neuroma_rev3___1 nerve_rev3_neuroma_radial
+rename neuroma_rev3___2 nerve_rev3_neuroma_median
+rename neuroma_rev3___3 nerve_rev3_neuroma_ulnar
+rename neuroma_rev3___4 nerve_rev3_neuroma_axillary
+rename neuroma_rev3___5 nerve_rev3_neuroma_musculocut
+rename neuroma_rev3___6 nerve_rev3_neuroma_intercostobr
+rename neuroma_rev3___7 nerve_rev3_neuroma_labc
+rename neuroma_rev3___8 nerve_rev3_neuroma_mabc
+rename neuroma_rev3___9 nerve_rev3_neuroma_digital
+rename neuroma_rev3___10 nerve_rev3_neuroma_peroneal_sf
+rename neuroma_rev3___11 nerve_rev3_neuroma_peroneal_cm
+rename neuroma_rev3___12 nerve_rev3_neuroma_peroneal_deep
+rename neuroma_rev3___13 nerve_rev3_neuroma_saphenous
+rename neuroma_rev3___14 nerve_rev3_neuroma_tibial
+rename neuroma_rev3___22 nerve_rev3_neuroma_femoral
+rename neuroma_rev3___15 nerve_rev3_neuroma_sciatic
+rename neuroma_rev3___16 nerve_rev3_neuroma_tibial_lat
+rename neuroma_rev3___17 nerve_rev3_neuroma_tibial_med
+rename neuroma_rev3___18 nerve_rev3_neuroma_sural
+rename neuroma_rev3___19 nerve_rev3_neuroma_sural_lat
+rename neuroma_rev3___20 nerve_rev3_neuroma_sural_med
+rename neuroma_rev3___21 nerve_rev3_neuroma_other
+rename nerve_rev1_rpni_intercostobrach nerve_rev1_rpni_intercostobr
+rename nerve_rev1_tmr_peroneal_dp nerve_rev1_tmr_peroneal_deep
+rename nerve_surg_tmr_peroneal_superf nerve_surg_tmr_peroneal_sf
+rename nerve_surg_tmr_peroneal_common nerve_surg_tmr_peroneal_cm
+rename nerve_surg_rpni_peroneal_superf nerve_surg_rpni_peroneal_sf
+rename nerve_surg_rpni_peroneal_common nerve_surg_rpni_peroneal_cm
+rename birth_year birth_date
+rename zipcode address
+rename amp1_date date_amp1
+rename amp1_date_injury date_injury_amp1
+rename amp1_indication indication_amp1
+rename amp1_limb_side limb_side_amp1
+rename amp1_lvl lvl_amp1
+rename amp1_mech_injury	mech_injury_amp1
+rename date_promis_2_v2_v2 date_promis_4
+
+// relabeling checked/unchecked to yes and no
+label define yesno 1 "Yes" 0 "No"
+
+
+
+tab gender
+
+
+
+// tabulate
+tab  crps_mentioned_yesno, m
+
+tab mrn if date_amp1 !=.
+tab mrn if amputation_yesno ==1
+
+drop bka_date-pain_sketch_15_complete
+
+tab date_crps_surg_other_1, m
+
+
+// CRPS patinets of interest
+drop if crps_mentioned_yesno != 1
+
+// drop redundant variables
+drop weight
+drop height
+
+drop major_diagnosis_surgery-amputation_complete
+drop crps_specific_charac_v_84
+
+
+// referral
+
+gen referral_type =""
+
+gen referral_MGH = .
+order referral_MGH, after(crps_referral_date)
+
+gen referral_specify = ""
+order referral_specify, after(referral_MGH)
+
+tab referral_MGH, m
+tab referral_specify
+
+tab crps_referral
+replace crps_referral="external" if crps_referral=="external "
+replace crps_referral="external" if crps_referral=="external  "
+replace crps_referral="internal" if crps_referral=="internal "
+replace crps_referral="external" if crps_referral=="not mentioned "
+
+encode crps_referral, gen(crps_referral_num)
+order crps_referral_num, after(crps_referral)
+drop crps_referral
+rename crps_referral_num crps_referral
+
+merge 1:1 mrn using "/Users/mrh77/Partners HealthCare Dropbox/Floris Raasveld/ICAN research/f. CRPS studies/Retrospective/Data/retro_budapest_all_raters_08072024_v2"
+
+drop _merge
+
+
+// bivariate - factors associated with crps - all assessors // crps_all
+
+
+
+
+
+
+
+
+
+
+****** CLEANING ********
+
+// convert 
+replace crps_temp="no" if crps_temp=="no "
+replace crps_temp="no" if crps_temp=="not mentioned"
+replace crps_temp="no" if crps_temp=="not mentioned "
+replace crps_temp="yes" if crps_temp=="yes "
+replace crps_temp="yes" if crps_temp=="yes  "
+tab crps_temp
+replace crps_temp="1" if crps_temp=="yes"
+replace crps_temp="0" if crps_temp=="no"
+destring crps_temp, replace
+tab crps_temp
+label values crps_temp yesno
+
+// convert 
+replace crps_temp_change="no" if crps_temp_change=="not mentioned"
+replace crps_temp_change="no" if crps_temp_change=="not mentioned "
+replace crps_temp_change="yes" if crps_temp_change=="yes "
+tab crps_temp
+replace crps_temp_change="1" if crps_temp_change=="yes"
+replace crps_temp_change="0" if crps_temp_change=="no"
+destring crps_temp_change, replace
+tab crps_temp_change
+label values crps_temp_change yesno
+
+// convert 
+replace crps_emotion="no" if crps_emotion=="not mentioned"
+replace crps_emotion="no" if crps_emotion=="not mentioned "
+replace crps_emotion="yes" if crps_emotion=="yes "
+tab crps_emotion
+replace crps_emotion="1" if crps_emotion=="yes"
+replace crps_emotion="0" if crps_emotion=="no"
+destring crps_emotion, replace
+tab crps_emotion
+label values crps_emotion yesno
+
+// convert 
+replace crps_emotion_2="no" if crps_emotion_2=="not mentioned"
+replace crps_emotion_2="no" if crps_emotion_2=="not mentioned "
+replace crps_emotion_2="no" if crps_emotion_2=="not mentioned  "
+replace crps_emotion_2="no" if crps_emotion_2==" not mentioned "
+replace crps_emotion_2="yes" if crps_emotion_2=="yes "
+replace crps_emotion_2="no" if crps_emotion_2=="no "
+replace crps_emotion_2="no" if crps_emotion_2=="no  "
+tab crps_emotion_2
+replace crps_emotion_2="1" if crps_emotion_2=="yes"
+replace crps_emotion_2="0" if crps_emotion_2=="no"
+destring crps_emotion_2, replace
+tab crps_emotion_2
+label values crps_emotion_2 yesno
+
+///// surgery before or after?
+
+gen surg_before_arrival = 0
+
+* Loop through each surgery date and check if it's before the arrival date
+foreach i in 1 2 3 4 5 {
+    replace surg_before_arrival = 1 if date_crps_surg_`i' < crps_encounter_date & date_crps_surg_`i' !=.
+}
+label values surg_before_arrival yesno
+
+gen surg_after_arrival = 0
+* Loop through each surgery date and check if it's before the arrival date
+foreach i in 1 2 3 4 5 {
+    replace surg_after_arrival = 1 if date_crps_surg_`i' > crps_encounter_date & date_crps_surg_`i' !=.
+}
+label values surg_after_arrival yesno
+
+
+tab surg_before_arrival
+tab surg_after_arrival
+
+
+tab surg_before_arrival budapest_confirmed, chi col
+
+tab surg_after_arrival budapest_confirmed, chi col
+
+
+tab surg_after_arrival budapest_confirmed, chi col
+
+
+// inciting_event
+
+replace inciting_event = 9 in 1
+replace inciting_event = 1 in 2
+replace inciting_event = 1 in 4
+replace inciting_event = 9 in 6
+replace inciting_event = 0 in 7
+replace inciting_event = 0 in 8
+replace inciting_event = 9 in 9
+replace inciting_event = 9 in 10
+replace inciting_event = 9 in 11
+replace inciting_event = 9 in 12
+replace inciting_event = 1 in 12
+replace inciting_event = 9 in 14
+replace inciting_event = 0 in 17
+replace inciting_event = 9 in 20
+replace inciting_event = 9 in 21
+replace inciting_event = 1 in 22
+replace inciting_event = 1 in 24
+replace inciting_event = 1 in 25
+replace inciting_event = 9 in 26
+replace inciting_event = 1 in 28
+replace inciting_event = 1 in 29
+replace inciting_event = 1 in 30
+replace inciting_event = 9 in 32
+replace inciting_event = 1 in 33
+replace inciting_event = 9 in 35
+replace inciting_event = 9 in 36
+replace inciting_event = 1 in 37
+replace inciting_event = 9 in 41
+replace inciting_event = 1 in 42
+replace inciting_event = 9 in 48
+replace inciting_event = 1 in 50
+
+// inciting event
+gen inciting = .
+order inciting, before (inciting_event)
+replace inciting = 1 if inciting_event!=0
+replace inciting = 0 if inciting==.
+label values inciting yesno
+
+replace inciting_event =. if inciting==0
+replace inciting_event = 0 if inciting_event==9
+
+//label define inciting 1 "Trauma" 0 "Iatrogenic"
+label define inciting 1 "Trauma" 0 "Iatrogenic"
+label values inciting_event inciting
+
+// inciting mechanism
+gen inciting_mechanism = .
+order inciting_mechanism, after (inciting_event)
+
+replace inciting_mechanism = 1 in 2
+replace inciting_mechanism = 1 in 3
+replace inciting_mechanism = 1 in 4
+replace inciting_mechanism = 3 in 5
+replace inciting_mechanism = 1 in 12
+replace inciting_mechanism = 4 in 13
+replace inciting_mechanism = 1 in 15
+replace inciting_mechanism = 3 in 16
+replace inciting_mechanism = 3 in 18
+replace inciting_mechanism = 1 in 19
+replace inciting_mechanism = 3 in 22
+replace inciting_mechanism = 6 in 23
+replace inciting_mechanism = 6 in 19
+replace inciting_mechanism = 1 in 24
+replace inciting_mechanism = 1 in 25
+replace inciting_mechanism = 1 in 27
+replace inciting_mechanism = 1 in 28
+replace inciting_mechanism = 6 in 29
+replace inciting_event = . in 30
+replace inciting_mechanism = 2 in 31
+replace inciting_mechanism = 5 in 33
+replace inciting_mechanism = 1 in 34
+replace inciting_mechanism = 1 in 37
+replace inciting_mechanism = 3 in 38
+replace inciting_mechanism = 1 in 39
+replace inciting_mechanism = 6 in 40
+replace inciting_mechanism = 1 in 42
+replace inciting_mechanism = 4 in 43
+replace inciting_mechanism = 3 in 44
+replace inciting_mechanism = 3 in 45
+replace inciting_mechanism = 1 in 46
+replace inciting_mechanism = 1 in 47
+replace inciting_mechanism = 6 in 49
+replace inciting_mechanism = 1 in 50
+replace inciting_mechanism = 4 in 51
+replace inciting_mechanism = 3 in 52
+replace inciting_mechanism = 1 in 53
+
+
+* Define labels for the new variable
+label define inciting_mechanisms 1 "Fall" 2 "Animal bite" 3 "Vehicle accident" 4 "Lifting or pulling" 5 "Chemical burn" 6 "Impact"
+label values inciting_mechanism inciting_mechanisms
+
+replace inciting_mechanism=. if inciting_mechanism==2
+replace inciting_mechanism=. if inciting_mechanism==8
+
+replace crps_ican_improv= 0 if mrn==6679635
+
+// convert 
+tab crps_sleep
+replace crps_sleep="no" if crps_sleep=="no "
+replace crps_sleep="yes" if crps_sleep=="yes "
+tab crps_sleep
+replace crps_sleep="1" if crps_sleep=="yes"
+replace crps_sleep="0" if crps_sleep=="no"
+destring crps_sleep, replace
+tab crps_sleep
+label values crps_sleep yesno
+
+rename crps_sleep_2 crps_sleep_affected
+// convert 
+tab crps_sleep_affected
+replace crps_sleep_affected="no" if crps_sleep_affected=="no "
+replace crps_sleep_affected="yes" if crps_sleep_affected=="sleep affected by pain"
+replace crps_sleep_affected="yes" if crps_sleep_affected=="sleep affected by pain "
+replace crps_sleep_affected="yes" if crps_sleep_affected=="sleep affecting pain "
+replace crps_sleep_affected="yes" if crps_sleep_affected=="sleep affecting pain"
+replace crps_sleep_affected="yes" if crps_sleep_affected=="both"
+replace crps_sleep_affected="yes" if crps_sleep_affected=="both "
+replace crps_sleep_affected="no" if crps_sleep_affected=="not mentioned "
+replace crps_sleep_affected="no" if crps_sleep_affected=="not mentioned"
+
+tab crps_sleep_affected
+replace crps_sleep_affected="1" if crps_sleep_affected=="yes"
+replace crps_sleep_affected="0" if crps_sleep_affected=="no"
+destring crps_sleep_affected, replace
+tab crps_sleep_affected
+label values crps_sleep_affected yesno
+
+
+
+// convert 
+
+gen crps_injections_given =0
+order crps_injections_given, before(crps_injections)
+replace crps_injections_given =1 if crps_injections != "not mentioned "
+replace crps_injections_given =0 if crps_injections == "no"
+replace crps_injections_given =0 if crps_injections == "not mentioned"
+replace crps_injections_given =0 if crps_injections == "not mentioned "
+label values crps_injections_given yesno
+
+gen crps_injections_spec =.
+tab crps_injections
+
+replace crps_injections = "3" in 1
+replace crps_injections = "3" in 5
+replace crps_injections = "1" in 6
+replace crps_injections = "2" in 7
+replace crps_injections = "2" in 8
+replace crps_injections = "" in 9
+replace crps_injections = "" in 3
+replace crps_injections = "" in 2
+replace crps_injections = "2" in 2
+replace crps_injections = "2" in 4
+replace crps_injections = "" in 10
+replace crps_injections = "1" in 11
+replace crps_injections = "2" in 12
+replace crps_injections = "1" in 13
+replace crps_injections = "" in 14
+replace crps_injections = "" in 15
+replace crps_injections = "3" in 16
+replace crps_injections = "" in 17
+replace crps_injections = "" in 18
+replace crps_injections = "1" in 18
+replace crps_injections = "" in 19
+replace crps_injections = "" in 20
+replace crps_injections = "" in 21
+replace crps_injections = "1" in 22
+replace crps_injections = "2" in 23
+replace crps_injections = "2" in 24
+replace crps_injections = "" in 25
+replace crps_injections = "" in 26
+replace crps_injections = "2" in 27
+replace crps_injections = "" in 28
+replace crps_injections = "2" in 29
+replace crps_injections = "1" in 30
+replace crps_injections = "" in 31
+replace crps_injections = "2" in 32
+replace crps_injections = "3" in 33
+replace crps_injections = "" in 34
+replace crps_injections = "3" in 35
+replace crps_injections = "2" in 36
+replace crps_injections = "2" in 37
+replace crps_injections = "" in 38
+replace crps_injections = "" in 39
+replace crps_injections = "3" in 40
+replace crps_injections = "" in 41
+replace crps_injections = "3" in 42
+replace crps_injections = "" in 43
+replace crps_injections = "" in 44
+replace crps_injections = "" in 45
+replace crps_injections = "" in 46
+replace crps_injections = "" in 47
+replace crps_injections = "" in 48
+replace crps_injections = "" in 49
+replace crps_injections = "" in 50
+replace crps_injections = "1" in 51
+replace crps_injections = "1" in 52
+replace crps_injections = "1" in 53
+
+destring crps_injections, replace
+label define injections 1 "Botox" 2 "Coricosteroid" 3 "Botox and Coricosteroid"
+label values crps_injections injections
+
+
+replace crps_nerve_block = 0 in 38
+replace crps_nerve_block = 0 in 31
+replace amputation_yesno = 0 in 38
+replace crps_pns = 0 in 38
+replace crps_dbs = 0 in 38
+replace crps_scs = 0 in 38
+replace crps_drgs = 0 in 38
+replace crps_nerv_block = 0 in 38
+replace crps_other = 0 in 38
+replace crps_surgeries_freq = 0 in 38
+
+
+
+
+tab crps_nerve_block_relief
+replace crps_nerve_block_relief="1" if crps_nerve_block_relief=="relief "
+replace crps_nerve_block_relief="0" if crps_nerve_block_relief=="no relief "
+replace crps_nerve_block_relief="0" if crps_nerve_block_relief=="not mentioned "
+destring crps_nerve_block_relief, replace
+tab crps_nerve_block_relief
+label values crps_nerve_block_relief yesno
+
+
+
+
+//mri
+gen crps_imaging_mri_done =0
+order crps_imaging_mri_done, before(crps_imaging_mri)
+replace crps_imaging_mri_done =1 if crps_imaging_mri !="not mentioned"
+replace crps_imaging_mri_done =0 if crps_imaging_mri =="not mentioned "
+label values crps_imaging_mri_done yesno
+
+
+//dexa
+gen crps_imaging_bone_done =0
+order crps_imaging_bone_done, before(crps_imaging_bone_scan)
+replace crps_imaging_bone_done =1 if crps_imaging_bone_scan !="not mentioned"
+replace crps_imaging_bone_done =0 if crps_imaging_bone_scan =="not mentioned "
+replace crps_imaging_bone_done =0 if crps_imaging_bone_scan =="not relevant to CRPS"
+label values crps_imaging_bone_done yesno
+replace crps_imaging_bone_done = 0 in 51
+
+//emg
+gen crps_imaging_emg_done =0
+order crps_imaging_emg_done, before(crps_imaging_emg)
+replace crps_imaging_emg_done =1 if crps_imaging_emg !="not mentioned"
+replace crps_imaging_emg_done =0 if crps_imaging_emg =="not mentioned "
+replace crps_imaging_emg_done =0 if crps_imaging_emg =="not relevant to CRPS"
+replace crps_imaging_emg_done =0 if crps_imaging_emg =="no"
+replace crps_imaging_emg_done =0 if crps_imaging_emg =="unclear if one was performed or not "
+
+label values crps_imaging_emg_done yesno
+
+//xray
+gen crps_imaging_xray_done =0
+order crps_imaging_xray_done, before(crps_imaging_xray)
+replace crps_imaging_xray_done =1 if crps_imaging_xray !="not mentioned"
+replace crps_imaging_xray_done =0 if crps_imaging_xray =="not mentioned "
+replace crps_imaging_xray_done =0 if crps_imaging_xray =="not relevant to CRPS"
+label values crps_imaging_xray_done yesno
+
+replace crps_genetic = "." in 1
+replace crps_genetic = "." in 2
+replace crps_genetic = "." in 3
+replace crps_genetic = "." in 4
+replace crps_genetic = "." in 5
+replace crps_genetic = "." in 6
+replace crps_genetic = "." in 7
+replace crps_genetic = "." in 8
+replace crps_genetic = "." in 9
+replace crps_genetic = "." in 10
+replace crps_genetic = "." in 11
+replace crps_genetic = "." in 12
+replace crps_genetic = "." in 13
+replace crps_genetic = "." in 14
+replace crps_genetic = "." in 15
+replace crps_genetic = "." in 16
+replace crps_genetic = "." in 17
+replace crps_genetic = "." in 18
+replace crps_genetic = "." in 19
+replace crps_genetic = "." in 20
+replace crps_genetic = "." in 21
+replace crps_genetic = "." in 22
+replace crps_genetic = "." in 23
+replace crps_genetic = "." in 24
+replace crps_genetic = "." in 25
+replace crps_genetic = "." in 26
+replace crps_genetic = "." in 27
+replace crps_genetic = "." in 28
+replace crps_genetic = "." in 29
+replace crps_genetic = "." in 30
+replace crps_genetic = "." in 31
+replace crps_genetic = "." in 32
+replace crps_genetic = "." in 33
+replace crps_genetic = "." in 34
+replace crps_genetic = "." in 35
+replace crps_genetic = "." in 36
+replace crps_genetic = "." in 37
+replace crps_genetic = "." in 38
+replace crps_genetic = "." in 39
+replace crps_genetic = "." in 40
+replace crps_genetic = "." in 41
+replace crps_genetic = "." in 42
+replace crps_genetic = "." in 43
+replace crps_genetic = "." in 44
+replace crps_genetic = "." in 45
+replace crps_genetic = "." in 46
+replace crps_genetic = "." in 47
+replace crps_genetic = "." in 48
+replace crps_genetic = "." in 49
+replace crps_genetic = "." in 50
+replace crps_genetic = "." in 51
+replace crps_genetic = "." in 52
+replace crps_genetic = "." in 53
+
+
+// convert 
+tab crps_med_opioids
+replace crps_med_opioids="no" if crps_med_opioids=="no "
+replace crps_med_opioids="no" if crps_med_opioids=="not mentioned"
+replace crps_med_opioids="no" if crps_med_opioids=="not mentioned "
+replace crps_med_opioids="yes" if crps_med_opioids=="yes "
+replace crps_med_opioids="yes" if crps_med_opioids=="yes  "
+tab crps_med_opioids
+replace crps_med_opioids="1" if crps_med_opioids=="yes"
+replace crps_med_opioids="0" if crps_med_opioids=="no"
+destring crps_med_opioids, replace
+tab crps_med_opioids
+label values crps_med_opioids yesno
+
+// convert 
+tab crps_med_neuromod
+replace crps_med_neuromod="no" if crps_med_neuromod=="no "
+replace crps_med_neuromod="no" if crps_med_neuromod=="not mentioned"
+replace crps_med_neuromod="no" if crps_med_neuromod=="not mentioned "
+replace crps_med_neuromod="yes" if crps_med_neuromod=="yes "
+replace crps_med_neuromod="yes" if crps_med_neuromod=="yes  "
+tab crps_med_neuromod
+replace crps_med_neuromod="1" if crps_med_neuromod=="yes"
+replace crps_med_neuromod="0" if crps_med_neuromod=="no"
+destring crps_med_neuromod, replace
+tab crps_med_neuromod
+label values crps_med_neuromod yesno
+
+// convert 
+tab crps_med_nmdara
+replace crps_med_nmdara="no" if crps_med_nmdara=="no "
+replace crps_med_nmdara="no" if crps_med_nmdara=="not mentioned"
+replace crps_med_nmdara="no" if crps_med_nmdara=="not mentioned "
+replace crps_med_nmdara="yes" if crps_med_nmdara=="yes "
+replace crps_med_nmdara="yes" if crps_med_nmdara=="yes  "
+tab crps_med_nmdara
+replace crps_med_nmdara="1" if crps_med_nmdara=="yes"
+replace crps_med_nmdara="0" if crps_med_nmdara=="no"
+destring crps_med_nmdara, replace
+tab crps_med_nmdara
+label values crps_med_nmdara yesno
+
+// convert 
+tab crps_substance_cann
+replace crps_substance_cann="no" if crps_substance_cann=="no "
+replace crps_substance_cann="no" if crps_substance_cann=="not mentioned"
+replace crps_substance_cann="no" if crps_substance_cann=="not mentioned "
+replace crps_substance_cann="yes" if crps_substance_cann=="yes "
+replace crps_substance_cann="yes" if crps_substance_cann=="yes  "
+replace crps_substance_cann="yes" if crps_substance_other=="medical marijuana "
+replace crps_substance_cann="yes" if crps_substance_other=="patient has a medical marijuana license "
+replace crps_substance_cann="yes" if crps_substance_other=="marijuana on a daily basis "
+replace crps_substance_cann="yes" if crps_substance_other=="occasional medical marijuana had helped with nausea and sleep"
+replace crps_substance_cann="yes" if crps_substance_other=="he reports that he smokes marijuana once a month "
+replace crps_substance_cann="yes" if crps_substance_other=="20 mg of marijuana via edibles and/or smoking every day "
+replace crps_substance_cann="yes" if crps_substance_other=="marijuana "
+replace crps_substance_cann="1" if crps_substance_cann=="yes"
+replace crps_substance_cann="0" if crps_substance_cann=="no"
+destring crps_substance_cann, replace
+tab crps_substance_cann
+label values crps_substance_cann yesno
+
+gen crps_tmr =.
+order crps_tmr, before(crps_pns)
+replace crps_tmr=0 
+replace crps_tmr=1 if amp_nerve_spec_crps ==3
+replace crps_tmr=1 if amp_nerve_spec_crps ==4
+replace crps_tmr=1 if nonamp_nerve_spec_crps ==3
+replace crps_tmr=1 if amp_nerve_spec_other_v2 =="neuroma excision, RPNI, TMR"
+
+
+
+* Create crps_neuroma_ever
+gen crps_neuroma_ever = 0
+order crps_neuroma_ever, before (crps_ican_improv)
+replace crps_neuroma_ever = 1 if strpos(lower(amp_nerve_spec_other_v2), "neuroma") > 0
+replace crps_neuroma_ever = 1 if strpos(lower(date_crps_surg_other_1), "neuroma") > 0
+replace crps_neuroma_ever = 1 if strpos(lower(date_crps_surg_other_2), "neuroma") > 0
+replace crps_neuroma_ever = 1 if strpos(lower(date_crps_surg_other_3), "neuroma") > 0
+replace crps_neuroma_ever = 1 if strpos(lower(date_crps_surg_other_4), "neuroma") > 0
+replace crps_neuroma_ever = 1 if strpos(lower(date_crps_surg_other_5), "neuroma") > 0
+label values crps_neuroma_ever yesno
+
+* Create crps_tmr_ever
+gen crps_tmr_ever = 0
+order crps_tmr_ever, before (crps_ican_improv)
+replace crps_tmr_ever = 1 if strpos(lower(amp_nerve_spec_other_v2), "tmr") > 0 | strpos(lower(amp_nerve_spec_other_v2), "targeted muscle reinnervation") > 0
+replace crps_tmr_ever = 1 if strpos(lower(date_crps_surg_other_1), "tmr") > 0 | strpos(lower(date_crps_surg_other_1), "targeted muscle reinnervation") > 0
+replace crps_tmr_ever = 1 if strpos(lower(date_crps_surg_other_2), "tmr") > 0 | strpos(lower(date_crps_surg_other_2), "targeted muscle reinnervation") > 0
+replace crps_tmr_ever = 1 if strpos(lower(date_crps_surg_other_3), "tmr") > 0 | strpos(lower(date_crps_surg_other_3), "targeted muscle reinnervation") > 0
+replace crps_tmr_ever = 1 if strpos(lower(date_crps_surg_other_4), "tmr") > 0 | strpos(lower(date_crps_surg_other_4), "targeted muscle reinnervation") > 0
+replace crps_tmr_ever = 1 if strpos(lower(date_crps_surg_other_5), "tmr") > 0 | strpos(lower(date_crps_surg_other_5), "targeted muscle reinnervation") > 0
+label values crps_tmr_ever yesno
+
+* Create crps_decompression_ever
+gen crps_decompression_ever = 0
+order crps_decompression_ever, before (crps_ican_improv)
+replace crps_decompression_ever = 1 if strpos(lower(amp_nerve_spec_other_v2), "decompression") > 0
+replace crps_decompression_ever = 1 if strpos(lower(date_crps_surg_other_1), "decompression") > 0
+replace crps_decompression_ever = 1 if strpos(lower(date_crps_surg_other_2), "decompression") > 0
+replace crps_decompression_ever = 1 if strpos(lower(date_crps_surg_other_3), "decompression") > 0
+replace crps_decompression_ever = 1 if strpos(lower(date_crps_surg_other_4), "decompression") > 0
+replace crps_decompression_ever = 1 if strpos(lower(date_crps_surg_other_5), "decompression") > 0
+label values crps_decompression_ever yesno
+
+
+* Create crps_decompression_ever
+gen crps_neurolysis_ever = 0
+order crps_neurolysis_ever, before (crps_ican_improv)
+replace crps_neurolysis_ever = 1 if strpos(lower(amp_nerve_spec_other_v2), "neurolysis") > 0
+replace crps_neurolysis_ever = 1 if strpos(lower(date_crps_surg_other_1), "neurolysis") > 0
+replace crps_neurolysis_ever = 1 if strpos(lower(date_crps_surg_other_2), "neurolysis") > 0
+replace crps_neurolysis_ever = 1 if strpos(lower(date_crps_surg_other_3), "neurolysis") > 0
+replace crps_neurolysis_ever = 1 if strpos(lower(date_crps_surg_other_4), "neurolysis") > 0
+replace crps_neurolysis_ever = 1 if strpos(lower(date_crps_surg_other_5), "neurolysis") > 0
+label values crps_neurolysis_ever yesno
+
+tab crps_neurolysis_ever
+
+replace crps_visits_mgh = "4" in 18
+destring crps_visits_mgh, replace
+
+* Create crps_ican_ever
+gen crps_ican_ever = 0
+order crps_ican_ever, before (crps_ican_improv)
+replace crps_ican_ever = 1 if crps_surg_team_1==0
+replace crps_ican_ever = 1 if crps_surg_team_2==0
+replace crps_ican_ever = 1 if crps_surg_team_3==0
+replace crps_ican_ever = 1 if crps_surg_team_4==0
+replace crps_ican_ever = 1 if crps_surg_team_5==0
+label values crps_ican_ever yesno
+
+tab crps_ican_ever
+
+gen crps_surgery_ever = 0
+replace crps_surgery_ever =1 if crps_surgeries_freq>0
+tab crps_surgery_ever
+
+
+crps_surgery_ever post 
+
+gen crps_sugery_ican_ever =0
+replace crps_sugery_ican_ever =1 if crps_surgeries_freq_ican>0
+tab crps_sugery_ican_ever
+
+
+
+
+
+
+
+
+
+
+tab crps_improv_reason crps_type, m
+
+sort  crps_type crps_improv_reason
+
+
+
+
+tab crps_ican_ever
+
+// age at ican clinic presentation
+gen age_y = (crps_encounter_date - birth_date)/ 365.2425
+
+tab age_y
+
+tab crps_encounter_date
+
+tab mrn if age_y<18
+
+// time presentation-1st sugrery
+gen time_visit_surgery = (date_crps_surg_1 - crps_encounter_date)/ 365.2425
+
+tab time_visit_surgery, m
+
+
+////
+
+gen inciting_event_nerve=0
+order inciting_event_nerve, after(bka_injury_mech_v2)
+replace inciting_event_nerve=. if inciting_event==.
+
+replace inciting_event_nerve = 1 in 10
+replace inciting_event_nerve = 1 in 11
+replace inciting_event_nerve = 1 in 14
+replace inciting_event_nerve = 1 in 20
+replace inciting_event_nerve = 1 in 21
+replace inciting_event_nerve = 1 in 26
+replace inciting_event_nerve = 1 in 35
+replace inciting_event_nerve = 1 in 41
+replace inciting_event_nerve = 1 in 43
+replace inciting_event_nerve = 1 in 18
+replace inciting_event_nerve = 1 in 19
+replace inciting_event_nerve = 1 in 16
+replace inciting_event_nerve = 1 in 2
+replace inciting_event_nerve = 1 in 3
+replace inciting_event_nerve = 0 in 3
+replace inciting_event_nerve = 1 in 4
+replace inciting_event_nerve = 1 in 9
+replace inciting_event_nerve = 1 in 22
+replace inciting_event_nerve = 1 in 32
+replace inciting_event_nerve = 1 in 31
+
+
+
+order crps_type___1, before(inciting_event_nerve)
+
+tab crps_type___1 crps_type___2, col
+
+
+
+tab inciting_event crps_type___1, col // inciting event in 39/42 crps I cases
+tab inciting_event_nerve crps_type___1, col // of those 39, 14 (36.7) there was actually a nerve injury reported
+tab inciting_event_nerve crps_type___1, col m // of those 42, 14 (34.0) there was actually a nerve injury reported
+
+
+tab crps_neuroma_ever crps_type___1, col m   // in 10/42 crps 1 cases (23.8) there was a neuroma being excised
+tab crps_decompression_ever crps_type___1, col m   // in 15/42 crps 1 cases (37.7) there was a decompression done
+
+order crps_type___1, before(crps_type___2)
+
+tab crps_type___1 crps_ican_ever, row // type 2 6/11 54.55% operated on
+tab crps_type___2 crps_ican_ever, row // type 2 6/11 54.55% operated on
+
+gen crps_type =1 if crps_type___1==1
+replace crps_type =2 if crps_type___2==1
+
+tab crps_type
+order crps_type, after(crps_type___2)
+order crps_type___1, before(crps_type___2)
+
+order inciting_event_nerve, after (inciting_mechanism)
+label values inciting_event_nerve yesno // only relevant for crps type I
+
+tab crps_type inciting_event
+tab crps_type inciting_mechanism
+tab crps_type inciting_event_nerve
+
+
+tab crps_ican_ever
+
+tab crps_type crps_ican_ever, row
+
+tab crps_type crps_ican_ever if amputation_yesno==1, row
+
+tab crps_type inciting_event_nerve, col row m
+
+///// BIORENDER Diagnosis image
+
+tab crps_type crps_surgeries_freq, row m
+
+tab crps_surgeries_freq_ican
+tab crps_surgeries_freq
+
+
+tab mrn if rater_1_c1==0 &  rater_1_c2==0 & rater_1_c3==0 &  rater_1_c4==0  & rater_3_c1==0 &  rater_3_c2==0 & rater_3_c3==0 &  rater_3_c4==0
+
+
+tab crps_type crps_neuroma_ever, row
+tab crps_type crps_decompression_ever, row
+tab crps_type amputation_yesno, row
+
+
+
+tab crps_type crps_neuroma_ever, row
+tab crps_type crps_neuroma_ever, row
+
+
+
+
+
+replace crps_substance_cann = 0 in 38
+replace crps_med_opioids = 1 in 38
+replace crps_med_neuromod = 1 in 38
+
+
+
+
+
+
+// Loop over the specified variables and tabulate each one
+foreach var of varlist crps_dystonia crps_allodynia crps_sensory_loss crps_rlp plp_presence_v2 crps_neuroma_pain crps_temp crps_temp_change crps_emotion crps_emotion_2 crps_limb_side crps_upper_lower inciting_event ehlers_danlos fibromyalgia pots crps_cfs crps_irb crps_gerd crps_migraine crps_sleep crps_sleep_affected crps_nerve_block crps_nerve_block_relief crps_injections crps_imaging_mri crps_imaging_bone_scan crps_imaging_emg crps_imaging_xray crps_imaging_other crps_genetic crps_med_opioids crps_med_neuromod crps_med_nmdara crps_substance_cann amputation_yesno crps_pns crps_dbs crps_scs crps_drgs crps_nerv_block crps_other crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican crps_ican_improv {
+    tab `var'
+}
+
+
+tab rater_1 rater_3, col
+tab mrn if rater_1==1 & rater_2==1 & rater_3==1
+
+
+
+
+
+///
+
+
+label define referral_department 1 "Plastic Surgery" ///
+                     2 "Orthopaedic Surgery" ///
+                     3 "Neurology" ///
+                     4 "Rehabilitation Medicine" ///
+                     5 "Pain Medicine" ///
+                     6 "Internal Medicine" ///
+                     7 "General Surgery" ///
+					 8 "Family Medicine"
+
+label values referral_department referral_department
+
+
+
+
+gen hispanic_ethnicity =.
+order hispanic_ethnicity, after (race)
+
+replace crps_budapest_assess=0 if crps_budapest_assess==.
+
+********************************
+********* Analysis *************
+********************************
+
+
+/// BIORENDER image surgery
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_med_opioids crps_med_neuromod crps_med_nmdara crps_substance_cann amputation_yesno crps_pns crps_dbs crps_scs crps_drgs crps_nerv_block crps_other crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican crps_ican_improv crps_surgery_ever crps_sugery_ican_ever{
+    tab `var' crps_ican_improv, exact col
+}
+
+
+
+
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in  surg_before_arrival  crps_nerve_block  crps_nerve_block_relief surg_after_arrival{
+    tab  `var' , m
+}
+
+tab surg_after_arrival if crps_nerve_block==1
+
+surg_before_arrival
+surg_after_arrival
+crps_nerve_block
+
+tab amputation_yesno
+
+tab surg_after_arrival 
+
+0
+
+tab mrn if crps_pns ==1 &  crps_scs==1 & 
+
+tab surg_after_arrival
+
+
+
+
+ 
+drop
+
+foreach i in 1 2 3 4 5 {
+    replace recent_surg_date = date_crps_surg_`i' if surg_before_arrival == 1 & (date_crps_surg_`i' > recent_surg_date | recent_surg_date == .) & date_crps_surg_`i'
+    replace recent_surg_other = date_crps_surg_other_`i' if surg_before_arrival == 1 & date_crps_surg_`i' == recent_surg_date & date_crps_surg_other_`i' !=""
+}
+
+
+drop recent_surg_date
+drop  recent_surg_other
+
+
+* Initialize the variables
+gen double recent_surg_date = .
+format recent_surg_date %td
+gen strL recent_surg_other = ""
+
+* Loop through each surgery date to find the most recent date before arrival
+foreach i in 1 2 3 4 5 {
+    * Ensure only valid dates are considered and update recent_surg_date
+    quietly {
+        replace recent_surg_date = date_crps_surg_`i' if surg_after_arrival == 1 &  date_crps_surg_`i' !=. &!missing(date_crps_surg_`i') & (missing(recent_surg_date) | date_crps_surg_`i' > recent_surg_date)
+        replace recent_surg_other = date_crps_surg_other_`i' if surg_after_arrival == 1 & date_crps_surg_other_`i' !="" & date_crps_surg_`i' == recent_surg_date
+    }
+}
+
+
+
+
+
+
+///
+
+rename var315 most_recent_visit_date
+
+gen most_recent_visit_date_num = date(most_recent_visit_date, "MDY")
+replace most_recent_visit_date_num = date(most_recent_visit_date, "MDY")
+
+format most_recent_visit_date_num %td
+
+
+///
+
+
+
+
+gen most_recent_visit_date = .
+destring most_recent_visit_date, replace
+format most_recent_visit_date %td
+
+list most_recent_visit_date
+
+drop folow_up_y
+
+gen follow_up_y = (most_recent_visit_date_num - crps_encounter_date_num)/365.2425
+gen diff_referral = (most_recent_visit_date_num - date_crps_mentioned_num)/365.2425
+
+
+gen crps_encounter_date_num = date(var319, "MDY")
+gen date_crps_mentioned_num = date(var320, "MDY")
+format crps_encounter_date_num %td
+format date_crps_mentioned_num %td
+
+
+drop opioid_use_preop-nsaid_postop
+
+summ follow_up_y, d
+summ diff_referral, d
+
+swilk follow_up_y
+swilk diff_referral
+
+tab mrn if date_crps_mentioned==.
+
+
+rename recent_surg_date most_recent_surg_date
+rename recent_surg_other most_recent_surg_descr
+
+gen diff_surgery_pns = most_recent_surg_date - crps_pns_date
+gen diff_surgery_scs = most_recent_surg_date - crps_scs_date
+gen diff_surgery_drgs = most_recent_surg_date - crps_drgs_date
+
+gen improvement_yesno = crps_ican_improv
+gen improvement_description = crps_improv_reason
+
+
+
+* Check results
+list recent_surg_date recent_surg_other if surg_before_arrival == 0
+
+
+list recent_surg_date recent_surg_other if surg_before_arrival == 0 & amputation_yesno==0
+
+tab recent_surg_other if surg_before_arrival == 0 
+
+
+tab recent_surg_other if amputation_yesno==0 & surg_after_arrival ==1
+
+***********************
+*** continuous vars ***
+***********************
+
+
+list  recent_surg_other if amputation_yesno==0 & surg_after_arrival ==1
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in age_y bmi crps_visits_mgh crps_visits_ican crps_surgeries_freq crps_surgeries_freq_ican {
+    swilk `var' if `var' !=0
+}
+// --> age and bmi are normally distributed, median IQR for the rest
+
+
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in age_y bmi  crps_visits_mgh crps_visits_ican crps_surgeries_freq crps_surgeries_freq_ican {
+    summ `var' if `var' !=0, d
+}
+
+
+foreach var in age_y bmi  crps_visits_mgh crps_visits_ican crps_surgeries_freq crps_surgeries_freq_ican {
+    ttest `var' if `var' !=0, by (crps_all)
+	ranksum `var' if `var' !=0, by (crps_all)
+}
+
+foreach var in age_y bmi  crps_visits_mgh crps_visits_ican crps_surgeries_freq crps_surgeries_freq_ican {
+    ttest `var' if `var' !=0, by (crps_surgeons)
+	ranksum `var' if `var' !=0, by (crps_surgeons)
+}
+
+
+
+/// crps_type
+
+foreach var in age_y bmi  crps_visits_mgh crps_visits_ican crps_surgeries_freq crps_surgeries_freq_ican {
+    ttest `var' if `var' !=0, by (crps_type)
+	ranksum `var' if `var' !=0, by (crps_type)
+}
+
+
+/// crps_ican_improv
+
+foreach var in age_y bmi  crps_visits_mgh crps_visits_ican crps_surgeries_freq crps_surgeries_freq_ican {
+    ttest `var' if `var' !=0, by (crps_ican_improv)
+	ranksum `var' if `var' !=0, by (crps_ican_improv)
+}
+
+
+
+
+
+
+gen work_yesno =1
+replace work_yesno=0 if employment_status==13
+replace work_yesno=0 if employment_status==10
+
+tab work_yesno, m
+
+tab work_yesno crps_all, col exact
+tab work_yesno crps_surgeons, col exact
+
+
+
+
+
+
+*********************
+*** Demographics ***
+*********************
+
+
+
+
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in gender race work_yesno employment_status insurance {
+    tab `var', m
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in gender race work_yesno employment_status insurance {
+    tab `var' crps_all, exact col
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in gender race work_yesno employment_status insurance {
+    tab `var' crps_surgeons, exact col
+}
+
+
+
+/// crps_type
+
+// Loop over the specified variables and tabulate each one
+foreach var in gender race work_yesno employment_status insurance  {
+    tab `var' crps_type, exact col
+}
+
+/// crps_ican_improv
+
+// Loop over the specified variables and tabulate each one
+foreach var in gender race work_yesno employment_status insurance  {
+    tab `var' crps_ican_improv, exact col
+}
+
+
+
+
+*******************************
+*** Disease characteristics ***
+*******************************
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_limb_side crps_upper_lower crps_type inciting inciting_event inciting_mechanism inciting_event_nerve {
+    tab `var', m
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_limb_side crps_upper_lower crps_type inciting inciting_event inciting_mechanism inciting_event_nerve {
+    tab `var' crps_all, exact col
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_limb_side crps_upper_lower crps_type inciting inciting_event inciting_mechanism inciting_event_nerve  {
+    tab `var' crps_surgeons, exact col
+}
+
+
+/// crps_type
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_limb_side crps_upper_lower crps_type inciting inciting_event inciting_mechanism inciting_event_nerve  {
+    tab `var' crps_type, exact col
+}
+
+/// crps_ican_improv
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_limb_side crps_upper_lower crps_type inciting inciting_event inciting_mechanism inciting_event_nerve  {
+    tab `var' crps_ican_improv, exact col
+}
+
+
+
+tab  inciting_event_nerve crps_type, row col
+
+
+tab inciting crps_type___1
+
+tab inciting crps_type___2
+
+tab inciting_event 
+
+tab inciting_mechanism if inciting_event==1, m
+
+tab inciting_event crps_type___1
+
+tab inciting_event inciting_mechanism
+
+
+
+
+
+
+
+**************************
+*** symptoms and signs ***
+**************************
+
+
+
+
+
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_dystonia crps_allodynia crps_sensory_loss crps_rlp plp_presence_v2 crps_neuroma_pain crps_temp crps_temp_change crps_emotion crps_emotion_2  {
+    tab `var' , m
+}
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_dystonia crps_allodynia crps_sensory_loss crps_rlp plp_presence_v2 crps_neuroma_pain crps_temp crps_temp_change crps_emotion crps_emotion_2  {
+    tab `var' crps_all, exact row
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_dystonia crps_allodynia crps_sensory_loss crps_rlp plp_presence_v2 crps_neuroma_pain crps_temp crps_temp_change crps_emotion crps_emotion_2  {
+    tab `var' crps_surgeons, exact row
+}
+
+/// crps_type
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_dystonia crps_allodynia crps_sensory_loss crps_rlp plp_presence_v2 crps_neuroma_pain crps_temp crps_temp_change crps_emotion crps_emotion_2  {
+    tab `var' crps_type, exact col
+}
+
+/// crps_ican_improv
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_dystonia crps_allodynia crps_sensory_loss crps_rlp plp_presence_v2 crps_neuroma_pain crps_temp crps_temp_change crps_emotion crps_emotion_2  {
+    tab `var' crps_ican_improv, exact col
+}
+
+***********************
+*** comorbs regular ***
+***********************
+
+
+
+
+
+
+
+// does not make difference
+
+tab mrn if crps_migraine==1
+tab mrn if crps_sleep==1
+tab mrn if anxiety==1
+tab mrn if depression==1
+
+tab rater_1 if crps_migraine==1
+tab crps_all if crps_migraine==1
+tab crps_surgeons if crps_migraine==1
+
+
+tab rater_1 if crps_sleep==1
+tab crps_all if crps_sleep==1
+tab crps_surgeons if crps_sleep==1
+
+tab rater_1 if anxiety==1
+tab crps_all if anxiety==1
+tab crps_surgeons if anxiety==1
+
+tab rater_1 if depression==1
+tab crps_all if depression==1
+tab crps_surgeons if depression==1
+
+tab mrn if crps_migraine ==1 & crps_surgeons ==0
+tab mrn if fibromyalgia ==1 & crps_surgeons ==0
+
+// interesingly, for the n=4 with crps no caregivers rater CRPS
+
+
+
+
+
+
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in  smoking  alcoholism diabetes hypothyroidism  per_vasc_disease ckd  {
+    tab `var' , m
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in smoking  alcoholism diabetes hypothyroidism  per_vasc_disease ckd  {
+    tab `var' crps_all, exact col
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in smoking  alcoholism diabetes hypothyroidism  per_vasc_disease ckd  {
+    tab `var' crps_surgeons, exact col
+}
+
+
+
+/// crps_type
+
+// Loop over the specified variables and tabulate each one
+foreach var in smoking  alcoholism diabetes hypothyroidism  per_vasc_disease ckd  {
+    tab `var' crps_type, exact col
+}
+
+/// crps_ican_improv
+
+// Loop over the specified variables and tabulate each one
+foreach var in smoking  alcoholism diabetes hypothyroidism  per_vasc_disease ckd  {
+    tab `var' crps_ican_improv, exact col
+}
+
+
+
+********************
+*** comorbs crps ***
+********************
+
+// Loop over the specified variables and tabulate each one
+foreach var in ehlers_danlos fibromyalgia pots crps_cfs crps_irb crps_gerd crps_migraine crps_sleep crps_sleep_affected psych_comorb depression anxiety pers_disord ptsd  {
+    tab `var' , m
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in ehlers_danlos fibromyalgia pots crps_cfs crps_irb crps_gerd crps_migraine crps_sleep crps_sleep_affected psych_comorb depression anxiety pers_disord ptsd  {
+    tab `var' crps_all, exact col
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in ehlers_danlos fibromyalgia pots crps_cfs crps_irb crps_gerd crps_migraine crps_sleep crps_sleep_affected psych_comorb depression anxiety pers_disord ptsd  {
+    tab `var' crps_surgeons, exact col
+}
+
+
+
+/// crps_type
+
+// Loop over the specified variables and tabulate each one
+foreach var in ehlers_danlos fibromyalgia pots crps_cfs crps_irb crps_gerd crps_migraine crps_sleep crps_sleep_affected psych_comorb depression anxiety pers_disord ptsd  {
+    tab `var' crps_type, exact col
+}
+
+/// crps_ican_improv
+
+// Loop over the specified variables and tabulate each one
+foreach var in ehlers_danlos fibromyalgia pots crps_cfs crps_irb crps_gerd crps_migraine crps_sleep crps_sleep_affected psych_comorb depression anxiety pers_disord ptsd  {
+    tab `var' crps_ican_improv, exact col
+}
+
+
+
+
+tab crps_budapest_assess, m
+tab crps_budapest_assess crps_all, col exact
+tab crps_budapest_assess crps_surgeons, col exact
+
+
+*** diagnostics ***
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_nerve_block crps_nerve_block_relief crps_injections crps_imaging_mri_done crps_imaging_bone_done crps_imaging_emg_done crps_imaging_xray_done crps_genetic  {
+    tab `var' , m
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_nerve_block crps_nerve_block_relief crps_injections crps_imaging_mri_done crps_imaging_bone_done crps_imaging_emg_done crps_imaging_xray_done crps_geneti  {
+    tab `var' crps_all, exact col
+}
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_nerve_block crps_nerve_block_relief crps_injections crps_imaging_mri_done crps_imaging_bone_done crps_imaging_emg_done crps_imaging_xray_done crps_geneti  {
+    tab `var'  crps_surgeons, exact col
+}
+
+
+
+/// crps_type
+
+// Loop over the specified variables and tabulate each one
+foreach var in  crps_budapest_assess crps_nerve_block crps_nerve_block_relief crps_injections crps_imaging_mri_done crps_imaging_bone_done crps_imaging_emg_done crps_imaging_xray_done crps_geneti  {
+    tab `var' crps_type, exact col
+}
+
+/// crps_ican_improv
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_budapest_assess crps_nerve_block crps_nerve_block_relief crps_injections crps_imaging_mri_done crps_imaging_bone_done crps_imaging_emg_done crps_imaging_xray_done crps_geneti  {
+    tab `var' crps_ican_improv, exact col
+}
+
+tab crps_ican_improv, m
+
+
+
+*****************
+*** treatment ***
+*****************
+
+
+
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_med_opioids crps_med_neuromod crps_med_nmdara crps_substance_cann amputation_yesno crps_pns crps_dbs crps_scs crps_drgs crps_nerv_block crps_other crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican crps_ican_improv  {
+    tab `var' 
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_med_opioids crps_med_neuromod crps_med_nmdara crps_substance_cann amputation_yesno crps_pns crps_dbs crps_scs crps_drgs crps_nerv_block crps_other crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican crps_ican_improv  {
+    tab `var' crps_all, exact col
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_med_opioids crps_med_neuromod crps_med_nmdara crps_substance_cann amputation_yesno crps_pns crps_dbs crps_scs crps_drgs crps_nerv_block crps_other crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican crps_ican_improv  {
+    tab `var' crps_surgeons, exact col
+}
+
+
+
+/// crps_type
+
+// Loop over the specified variables and tabulate each one
+foreach var in  crps_med_opioids crps_med_neuromod crps_med_nmdara crps_substance_cann amputation_yesno crps_pns crps_dbs crps_scs crps_drgs crps_nerv_block crps_other crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican crps_ican_improv crps_surgery_ever crps_sugery_ican_ever{
+    tab `var' crps_type, exact col
+}
+
+/// crps_ican_improv
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_med_opioids crps_med_neuromod crps_med_nmdara crps_substance_cann amputation_yesno crps_pns crps_dbs crps_scs crps_drgs crps_nerv_block crps_other crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican crps_ican_improv crps_surgery_ever crps_sugery_ican_ever{
+    tab `var' crps_ican_improv, exact col
+}
+
+
+**************************
+*** treatment specific ***
+**************************
+
+tab mrn if crps_ican_improv==1 & crps_med_opioids==1
+tab mrn if crps_ican_improv==0 & crps_med_opioids==0
+ 
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_neuroma_ever crps_tmr_ever crps_decompression_ever amputation_yesno  {
+    tab `var' crps_ican_improv, exact row
+}
+
+
+foreach var in crps_neuroma_ever crps_tmr_ever crps_decompression_ever amputation_yesno  {
+tab `var' crps_tmr_ever if amputation_yesno ==0
+}
+
+
+
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_neuroma_ever crps_tmr_ever crps_decompression_ever amputation_yesno  {
+    tab `var' crps_ican_improv, exact row
+}
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_neuroma_ever crps_tmr_ever crps_decompression_ever amputation_yesno  {
+    tab `var' crps_type, exact row
+}
+
+
+
+
+
+
+
+/// TMR helps 
+/// amputation helps?
+
+
+/////
+
+crps_dystonia
+crps_allodynia
+crps_sensory_loss
+crps_rlp
+plp_presence_v2
+crps_neuroma_pain
+
+crps_temp      // "no " "not mentioned" "not mentioned " "yes " "yes  "
+crps_temp_change
+crps_emotion
+crps_emotion_2
+
+crps_limb_side
+crps_upper_lower
+inciting_event
+
+
+ehlers_danlos
+fibromyalgia
+pots
+crps_cfs
+crps_irb
+crps_gerd
+crps_migraine
+crps_sleep
+crps_sleep_affected
+
+
+crps_nerve_block
+crps_nerve_block_relief
+crps_injections
+
+crps_imaging_mri_done
+crps_imaging_bone_done
+crps_imaging_emg_done
+crps_imaging_xray_done
+crps_genetic
+
+crps_med_opioids
+crps_med_neuromod
+crps_med_nmdara
+crps_substance_cann // check this one!!!
+amputation_yesno
+
+crps_pns
+crps_dbs
+crps_scs
+crps_drgs
+crps_nerv_block
+crps_other
+
+crps_visits_ican
+crps_visits_mgh
+crps_surgeries_freq
+crps_surgeries_freq_ican
+crps_ican_improv
+
+crps_neuroma_ever
+crps_tmr_ever
+crps_decompression_ever
+
+
+
+
+
+// continuous
+time first mentioned - ican
+time diagnosis - time first visit
+
+
+
+// bivariate - factors associated with crps - surgeons  // crps_surgeons
+
+
+// Loop over the specified variables and tabulate each one
+foreach var of varlist crps_dystonia crps_allodynia crps_sensory_loss crps_rlp plp_presence_v2 crps_neuroma_pain crps_temp crps_temp_change crps_emotion crps_emotion_2 crps_limb_side crps_upper_lower inciting_event ehlers_danlos fibromyalgia pots crps_cfs crps_irb crps_gerd crps_migraine crps_sleep crps_sleep_2 crps_nerve_block crps_nerve_block_relief crps_injections crps_imaging_mri crps_imaging_bone_scan crps_imaging_emg crps_imaging_xray crps_imaging_other crps_genetic crps_med_opioids crps_med_neuromod crps_med_nmdara crps_substance_cann amputation_yesno crps_pns crps_dbs crps_scs crps_drgs crps_nerv_block crps_other crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican crps_ican_improv {
+    tab `var'
+}
+
+
+
+
+///////
+
+
+/* // crps type I 
+L AKA + TMR 
+R AKA + TMR
+R AKA + TMR 
+R BKA + TMR
+R BKA + TMR + RPNI
+R CPN decompression + R SPN TMR
+R CPN decompression + R lateral sural nerve decompression 
+R CPN decompression + R lateral sural nerve decompression + R SPN decompression 
+R medial sural nerve decompression and neurolysis + R CPN decompression and neurolysis + R tibial nerve decompression and neurolysis + R lateral sural nerve neuroma excision and reconstruction 
+SCS
+SCS
+SCS
+TMR + peripheral nerve stimulator 
+botox injections 
+debridement for presumed osteomyelitis 
+dorsal root ganglion stimulator 
+left cervical stellate ganglion block 
+left medial SPN neuroma excision + reconstruction 
+left sural neuroma excision and reconstruction + MTP joint injection 
+neurectomy of left lateral femoral cutaneous nerve 
+release R carpal tunnel + release R cubital tunnel + decompression of median nerve 
+right median nerve neuroma excision and reconstruction 
+saphenous neuroma excision revision + TMR
+the excision of the osteochondroma resolved the CRPS pain
+
+
+
+
+// crps type II
+
+R BKA + R TMR 
+R tibial and CPN ablations via TMR + excision distal tibial and CPN and associated neuromas 
+left thoracic outlet decompression 
+right saphenous branch neuroma excision and intramuscular burying 
+tibial and common peroneal nerve blocks
+
+*/
+
+
+tab  crps_ican_improv crps_type, col row
+
+tab crps_ican_improv
+
+/// differences beteen improvement and no improvement
+
+
+tab inciting_event crps_type , col exact
+
+// Loop over the specified variables and tabulate each one
+foreach var in crps_sensory_loss crps_emotion  crps_med_opioids crps_substance_cann amputation_yesno  crps_surgery_ever crps_sugery_ican_ever  {
+    tab `var' crps_ican_improv , exact col m
+}
+
+
+
+foreach var in crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican{
+	ranksum `var' if `var' !=0, by (crps_ican_improv)
+	summ `var' if crps_ican_improv==0, d
+	summ `var' if crps_ican_improv==1, d
+}
+
+tab crps_type crps_ican_improv, col exact
+
+foreach var in crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican{
+  swilk `var'
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+gen active_nerve_surgery =.
+replace  active_nerve_surgery = 1 if crps_tmr==1
+order active_nerve_surgery, after (nonamp_nerve_spec_crps)
+label values active_nerve_surgery yesno
+
+
+
+
+
+
+
+
+/*=========================================================================
+Tables
+=========================================================================*/
+
+
+pwd
+cd "/Users/mrh77/Partners HealthCare Dropbox/Floris Raasveld/ICAN research/f. CRPS studies/Retrospective/Results"
+pwd
+
+
+
+
+
+
+
+// demographics
+age_y gender bmi race hispanic_ethnicity education state employment_status insurance
+
+
+// referral
+crps_referral referral_department crps_budapest_assess follow_up_y diff_referral crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican
+surg_before_arrival surg_after_arrival
+
+// comorbs regular
+alcoholism smoking diabetes hypothyroidism psych_comorb depression anxiety pers_disord ptsd per_vasc_disease ckd hx_chronic_pain
+
+// signs crps
+crps_type crps_dystonia crps_allodynia crps_sensory_loss crps_neuroma_pain crps_temp crps_temp_change crps_emotion crps_emotion_2 crps_limb_side crps_upper_lower inciting inciting_event inciting_mechanism
+
+// comorbs crps
+ehlers_danlos fibromyalgia pots crps_cfs crps_irb crps_gerd crps_migraine crps_sleep crps_sleep_affected
+
+
+// diagnostics
+crps_nerve_block crps_nerve_block_relief crps_injections crps_imaging_mri_done crps_imaging_bone_done crps_imaging_emg_done crps_imaging_xray_done crps_genetic
+
+// treatment
+crps_med_opioids crps_med_neuromod crps_med_nmdara crps_substance_cann  crps_nerv_block crps_injections_given
+
+// devices
+crps_pns crps_dbs crps_scs crps_drgs
+
+// surgery
+amputation_yesno amp_level_crps amp_nerve_crps crps_tmr_ever  crps_neuroma_ever crps_decompression_ever crps_neurolysis_ever 
+most_recent_surg_descr mr_surg_cate mr_surg_cate_simp improvement_yesno improvement_description
+
+
+replace alcoholism=0 if alcoholism ==2
+replace alcoholism=0 if alcoholism ==3
+label values alcoholism yesno
+
+replace smoking=0 if smoking ==2
+replace smoking=0 if smoking ==3
+label values smoking yesno
+
+
+label values depression yesno
+label values anxiety yesno
+label values pers_disord yesno
+label values ptsd yesno
+
+
+
+
+///
+
+//install
+ssc install table1
+net install table1
+
+
+
+* Create Table 1 grouped by topics
+
+
+// demographics
+age_y gender bmi race hispanic_ethnicity education state employment_status insurance
+
+
+// referral
+crps_referral referral_department crps_budapest_assess follow_up_y diff_referral crps_visits_ican crps_visits_mgh crps_surgeries_freq crps_surgeries_freq_ican
+surg_before_arrival surg_after_arrival
+
+// comorbs regular
+alcoholism smoking diabetes hypothyroidism psych_comorb depression anxiety pers_disord ptsd per_vasc_disease ckd hx_chronic_pain
+
+// signs crps
+crps_type crps_dystonia crps_allodynia crps_sensory_loss crps_neuroma_pain crps_temp crps_temp_change crps_emotion crps_emotion_2 crps_limb_side crps_upper_lower inciting inciting_event inciting_mechanism
+
+// comorbs crps
+ehlers_danlos fibromyalgia pots crps_cfs crps_irb crps_gerd crps_migraine crps_sleep crps_sleep_affected
+
+
+// diagnostics
+crps_nerve_block crps_nerve_block_relief crps_injections crps_imaging_mri_done crps_imaging_bone_done crps_imaging_emg_done crps_imaging_xray_done crps_genetic
+
+// treatment
+crps_med_opioids crps_med_neuromod crps_med_nmdara crps_substance_cann  crps_nerv_block crps_injections_given
+
+// devices
+crps_pns crps_dbs crps_scs crps_drgs
+
+// surgery
+amputation_yesno amp_level_crps amp_nerve_crps crps_tmr_ever  crps_neuroma_ever crps_decompression_ever crps_neurolysis_ever 
+most_recent_surg_descr mr_surg_cate mr_surg_cate_simp improvement_yesno improvement_description
+
+/*
+table1, ///
+vars(age_y conts \ gender cat \ bmi conts \ race cat \ hispanic_ethnicity bin \ education cat \ state cat \ employment_status cat \ insurance cat \ ///
+crps_referral cat \ referral_department cat \ crps_budapest_assess bin \ follow_up_y conts \ diff_referral conts \ crps_visits_ican conts \ crps_visits_mgh conts \ crps_surgeries_freq conts \ crps_surgeries_freq_ican conts \ ///
+surg_before_arrival bin \ surg_after_arrival bin \ ///
+alcoholism bin \ smoking bin \ diabetes bin \ hypothyroidism bin \ psych_comorb bin \ depression bin \ anxiety bin \ pers_disord bin \ ptsd bin \ per_vasc_disease bin \ ckd bin \ hx_chronic_pain bin \ ///
+crps_type cat \ crps_dystonia bin \ crps_allodynia bin \ crps_sensory_loss bin \ crps_neuroma_pain bin \ crps_temp bin \ crps_temp_change bin \ crps_emotion bin \ crps_emotion_2 bin \ crps_limb_side bin \ crps_upper_lower bin \ inciting bin \ inciting_event cat \ inciting_mechanism cat \ ///
+ehlers_danlos bin \ fibromyalgia bin \ pots bin \ crps_cfs bin \ crps_irb bin \ crps_gerd bin \ crps_migraine bin \ crps_sleep bin \ crps_sleep_affected bin \ ///
+crps_nerve_block bin \ crps_nerve_block_relief bin \ crps_injections bin \ crps_imaging_mri_done bin \ crps_imaging_bone_done bin \ crps_imaging_emg_done bin \ crps_imaging_xray_done bin \ crps_genetic bin \ ///
+crps_med_opioids bin \ crps_med_neuromod bin \ crps_med_nmdara bin \ crps_substance_cann bin \ crps_nerv_block bin \ crps_injections_given bin \ ///
+crps_pns bin \ crps_dbs bin \ crps_scs bin \ crps_drgs bin \ ///
+amputation_yesno bin \ amp_level_crps bin \ amp_nerve_crps bin \ crps_tmr_ever bin \ crps_neuroma_ever bin \ crps_decompression_ever bin \ crps_neurolysis_ever bin \ ///
+most_recent_surg_descr cat \ mr_surg_cate cat \ mr_surg_cate_simp cat \ improvement_yesno bin \ improvement_description cat) ///
+test saving(table1_grouped.xlsx, replace)
+*/
+
+
+
+
+
+
+// Demographics
+table1, ///
+vars(age_y conts \ gender cat \ bmi conts \ race cat \ hispanic_ethnicity bin \ education cat \ state cat \ employment_status cat \ insurance cat) ///
+missing ///
+format(%9.1f) ///
+saving(demographics.xlsx, replace)
+
+// Referral
+table1, ///
+vars(crps_referral cat \ referral_department cat \ crps_budapest_assess bin \ follow_up_y conts \ diff_referral conts \ crps_visits_ican conts \ crps_visits_mgh conts \ crps_surgeries_freq conts \ crps_surgeries_freq_ican conts \ ///
+surg_before_arrival bin \ surg_after_arrival bin) ///
+missing ///
+format(%9.1f) ///
+saving(referral.xlsx, replace)
+
+// Comorbs Regular
+table1, ///
+vars(alcoholism bin \ smoking bin \ diabetes bin \ hypothyroidism bin \ psych_comorb bin \ depression bin \ anxiety bin  \ ptsd bin \ per_vasc_disease bin \ ckd bin \) ///
+missing ///
+format(%9.1f) ///
+saving(comorbs_regular.xlsx, replace)
+
+// Comorbs CRPS
+table1, ///
+vars(ehlers_danlos bin \ fibromyalgia bin \ pots bin \ crps_irb bin \ crps_gerd bin \ crps_migraine bin \ crps_sleep bin \ crps_sleep_affected bin) ///
+missing ///
+format(%9.1f) ///
+saving(comorbs_crps.xlsx, replace)
+
+
+// Signs CRPS
+table1, ///
+vars(crps_type cat \ crps_dystonia bin \ crps_allodynia bin \ crps_sensory_loss bin \ crps_neuroma_pain bin \ crps_temp bin \ crps_temp_change bin \ crps_emotion bin \ crps_emotion_2 bin \ crps_limb_side cat \ crps_upper_lower cat \ ///
+inciting bin \ inciting_event cat \ inciting_mechanism cat) ///
+missing ///
+format(%9.1f) ///
+saving(signs_crps.xlsx, replace)
+
+
+
+
+// Diagnostics
+table1, ///
+vars(crps_nerve_block bin \ crps_nerve_block_relief bin \ crps_injections cat \ crps_imaging_mri_done bin \ crps_imaging_bone_done bin \ crps_imaging_emg_done bin \ crps_imaging_xray_done bin \ ) ///
+missing ///
+format(%9.1f) ///
+saving(diagnostics.xlsx, replace)
+
+
+// Treatment
+table1, ///
+vars(crps_med_opioids bin \ crps_med_neuromod bin \ crps_med_nmdara bin \ crps_substance_cann bin \ crps_nerv_block bin \ crps_injections_given bin) ///
+missing ///
+format(%9.1f) ///
+saving(treatment.xlsx, replace)
+
+// Devices
+table1, ///
+vars(crps_pns bin  \ crps_scs bin \ crps_drgs bin) ///
+missing ///
+format(%9.1f) ///
+saving(devices.xlsx, replace)
+
+// Surgery
+table1, ///
+vars(amputation_yesno bin \ amp_level_crps cat \ amp_nerve_crps cat \ crps_tmr_ever bin \ crps_neuroma_ever bin \ crps_decompression_ever bin \ crps_neurolysis_ever bin \ ///
+most_recent_surg_descr cat \ mr_surg_cate cat \ mr_surg_cate_simp cat \ improvement_yesno bin \ improvement_description cat) ///
+missing ///
+format(%9.1f) ///
+saving(surgery.xlsx, replace)
+
+
+
+
+
+******
+
+// Surgery, mr
+table1, ///
+vars( most_recent_surg_descr_cate cat \ improvement_description_cate cat \ improvement_description_decomp bin \ improvement_description_neuroma bin \ improvement_description_ptmr bin \ improvement_description_stmr bin) ///
+missing ///
+format(%9.1f) ///
+by(budapest_confirmed) test saving(budapest_groups_difference_surg_improv.xlsx, replace)
+
+
+
+table most_recent_surg_descr_cate cat improvement_description_cate cat improvement_description_decomp bin improvement_description_neuroma bin improvement_description_ptmr bin improvement_description_stmr bin, ///
+    contents(frequency percent) ///
+    format(%9.1f) ///
+    saving(budapest_groups_difference_surg_improv_2.xlsx, replace)
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+* Total number of patients
+display "Total patients: `=_N'"
+
+* Descriptive statistics for Budapest groups
+display "Descriptive statistics for Budapest groups:"
+tabulate budapest_confirmed
+
+* Peripheral nerve block by Budapest groups
+display "Peripheral nerve block by Budapest groups:"
+tabulate crps_nerve_block if budapest_confirmed == 1
+tabulate crps_nerve_block if budapest_confirmed == 2
+tabulate crps_nerve_block if budapest_confirmed == 3
+
+
+
+
+tabulate crps_nerve_block if budapest_confirmed == 1
+	
+tabulate crps_nerve_block_relief if crps_nerve_block ==1 & budapest_confirmed == 1
+
+	
+tabulate crps_nerve_block_relief if crps_nerve_block ==1 & budapest_confirmed == 1
+
+tabulate crps_nerve_block_relief if crps_nerve_block ==1 & budapest_confirmed == 1
+
+tabulate crps_nerve_block_relief if crps_nerve_block ==1 & budapest_confirmed == 1	
+	
+	
+surg_after_arrival	
+	
+	
+	
+	
+	
+***
+
+
+
+
+tab budapest_confirmed  surg_after_arrival if crps_nerve_block_relief==0, m
+	
+
+	
+tab budapest_confirmed if surg_after_arrival==1 if crps_nerve_block==0, m
+	
+	
+
+tab budapest_confirmed  crps_nerve_block, m row
+tab budapest_confirmed  crps_nerve_block_relief, row
+	
+	
+	
+tab budapest_confirmed  surg_after_arrival if crps_nerve_block_relief==0, row
+	
+
+tab surg_after_arrival improvement_yesno if budapest_confirmed ==1 & crps_nerve_block ==1 & crps_nerve_block_relief==0,  row
+tab surg_after_arrival improvement_yesno if budapest_confirmed ==1 & crps_nerve_block ==1 & crps_nerve_block_relief==1,  row
+
+
+tab surg_after_arrival improvement_yesno if budapest_confirmed ==1 & crps_nerve_block ==0,  row
+
+
+
+summ follow_up_y, d
+summ diff_referral, d
+
+gen diff_mentioned =  (crps_encounter_date_num - date_crps_mentioned_num)/365.2425
+
+order diff_mentioned, after (diff_referral)
+
+summ diff_mentioned, d
+
+rename diff_mentioned diff_referral_time_to_ican
+
+rename diff_referral diff_referral_mr_visit
+
+
+
+summ diff_referral_time_to_ican, d
+summ diff_referral_mr_visit, d
+
+
+
+
+tab group_3_agreement
+tab group_0_agreement
+
+
+
+most_recent_surg_descr_cate
+
+improvement_description_cate
+improvement_description_decomp
+improvement_description_neuroma
+improvement_description_ptmr
+improvement_description_stmr
+
+
+destring improvement_reason_surg, replace
+destring improvement_reason_surg_nerve, replace
+
+
+
+tab  referral_department crps_referral, col
+
+
+tab  inciting_event inciting_mechanism, col
+
+tab surg_after_arrival
+
+sum  crps_surgeries_freq  if crps_surgeries_freq>0, d
+sum  crps_surgeries_freq_ican  if crps_surgeries_freq_ican>0, d
+
+
+sum  crps_visits_mgh if crps_visits_mgh>0,  d 
+sum  crps_visits_ican if crps_visits_ican>0,  d
+
+
+
+
+tab budapest_confirmed
+
+gen budapest_confirmed =0
+replace budapest_confirmed = 1 if group_3_agreement==1
+replace budapest_confirmed = 2 if group_1_agreement==1
+replace budapest_confirmed = 2 if group_2_agreement==1
+replace budapest_confirmed = 3 if group_0_agreement==1
+
+label define budapest_confirmed 1 "CRPS" 2 "inconclusive" 3 "non-CRPS"
+
+label values budapest_confirmed budapest_confirmed
+
+tab  budapest_confirmed
+
+//// tables grouped by  budapest_confirmed
+
+
+
+************ differences between budapest groups
+
+
+// Treatment
+table1, ///
+vars(crps_med_opioids bin \ crps_med_neuromod bin \ crps_med_nmdara bin \ crps_substance_cann bin \ crps_nerv_block bin \ crps_injections_given bin \ crps_pns bin  \ crps_scs bin \ crps_drgs bin \ amputation_yesno bin \ amp_level_crps cat \ amp_nerve_crps cat \ crps_tmr_ever bin \ crps_neuroma_ever bin \ crps_decompression_ever bin \ crps_neurolysis_ever bin \ ///
+most_recent_surg_descr cat \ mr_surg_cate cat \ mr_surg_cate_simp cat \ improvement_yesno bin \ improvement_description cat ) ///
+missing ///
+format(%9.1f) ///
+by(budapest_confirmed) test saving(budapest_groups_difference.xlsx, replace)
+
+
+// crps characteristics
+table1, ///
+vars(crps_type cat \ crps_dystonia bin \ crps_allodynia bin \ crps_sensory_loss bin \ crps_neuroma_pain bin \ crps_temp bin \ crps_temp_change bin \ crps_emotion bin \ crps_emotion_2 bin \ crps_limb_side cat \ crps_upper_lower cat \ ///
+inciting bin \ inciting_event cat \ inciting_mechanism cat) ///
+missing ///
+format(%9.1f) ///
+by(budapest_confirmed) test saving(budapest_groups_difference_type.xlsx, replace)
+
+
+// differences between groups of improvement
+
+
+tab inciting_event_nerve budapest_confirmed, chi col 
+
+
+
+tab crps_type inciting_event_nerve, row m // in 14 of 42 crps type I, 33.33%
+
+
+
+
+tab   surg_after_arrival improvement_yesno, chi col
+
+
+tab    improvement_yesno budapest_confirmed, chi col
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Demographics
+table1, ///
+vars(age_y conts \ gender cat \ bmi conts \ race cat \ hispanic_ethnicity bin \ education cat \ state cat \ employment_status cat \ insurance cat) ///
+missing ///
+format(%9.1f) ///
+saving(demographics.xlsx, replace)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// The numbers are going to be so small that I am afraid there will be no relevance in doing a comparative analusi this - no clear differences otehr thatn mere guesses based on a few patients more or less in eacah category. Let alone being powered for a meaningful analysis. That is the reason why I only attempted a biviate analysis with the cohort split in two groups with no missig data.
+
+
+// CRPS group: total n=22, n=11 (50%) improvement. In this group, surgery was perfomred in n=16 (73%)
+// CRPS group: total n=17, n=10 (59%) improvement.  In this group, surgery was perfomred in n=11 (65%)
+// CRPS group: total n=14, n=8 (57%) improvement.  In this group, surgery was perfomred in n=8 (57%)
+
+// Following these numbers, doing a bivaraite analsysis with outocme of imporvement per subgroup for each of the interventions will leave you with buckets of n=5-10 patients max. I can try but I think it is going to make it unnecesarily complex and the data will not be able to tell us anything. E.g. many comparisons conducted in table 3 are underpowered and maybe we should not even attempt a comparative analysis here but just show the descriptives.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// clean surgery description and improv data
+
+gen improvement_description_cate = ""
+order improvement_description_cate, after(improvement_description)
+
+
+gen improvement_reason_surg = ""
+order improvement_reason_surg, after(improvement_description)
+
+gen improvement_reason_surg_nerve = ""
+order improvement_reason_surg_nerve, after(improvement_reason_surg)
+
+gen most_recent_surg_descr_cate = ""
+order most_recent_surg_descr_cate, after(most_recent_surg_descr)
+
+order improvement_description_cate, after(improvement_description)
+
+
+
+
+
+
+
+
+gen improvement_description_decomp = .
+order improvement_description_decomp, after(improvement_reason_surg_nerve)
+
+gen improvement_description_neuroma = .
+order improvement_description_neuroma, after(improvement_description_decomp)
+
+gen improvement_description_ptmr = .
+order improvement_description_ptmr, after(improvement_description_decomp)
+
+gen improvement_description_stmr = .
+order improvement_description_stmr, after(improvement_description_ptmr)
+
+destring improvement_reason_surg, replace
+destring improvement_reason_surg_nerve, replace
+
+drop improvement_description_decomp - improvement_description_stmr
+
+
+
+
+
+
+
+
+* Create "improvement_description_decomp" if "improvement_description_cate" contains "Decompression" or "decompression" (case-insensitive check).
+gen improvement_description_decomp = strpos(lower(improvement_description_cate), "decompression") > 0
+order improvement_description_decomp, after(improvement_reason_surg_nerve)
+* Create "improvement_description_neuroma" if "improvement_description_cate" contains "neuroma" or "Neuroma" (case-insensitive check).
+gen improvement_description_neuroma = strpos(lower(improvement_description_cate), "neuroma") > 0
+order improvement_description_neuroma, after(improvement_description_decomp)
+* Create "improvement_description_ptmr" if "improvement_description_cate" contains "neuroma", "BKA", or "AKA" (case-insensitive check).
+gen improvement_description_ptmr = strpos(lower(improvement_description_cate), "neuroma") > 0 | strpos(upper(improvement_description_cate), "BKA") > 0 | strpos(upper(improvement_description_cate), "AKA") > 0
+order improvement_description_ptmr, after(improvement_description_decomp)
+
+gen improvement_description_stmr = .
+order improvement_description_stmr, after(improvement_description_ptmr)
+replace improvement_description_stmr =0
+
+
+
+
+
+
+
+****** review sept 8 2024
+// additional: workers comp
+// check: sensory loss, emotional events
+// amp / suregry status
+
+
+
+
+
+gen workers_comp =.
+order workers_comp, after(insurance)
+label values workers_comp yesno
+
+
+tab mrn amp_level_crps
+
+drop if mrn==.
+
+tab workers_comp
+
+label values crps_tmr yesno
+
+gen timing_tmr =.
+
+order timing_tmr, after (nonamp_nerve_spec_crps)
+
+replace timing_tmr = 1 if amp_nerve_crps==2
+rename timing_tmr tmr_secondary
+
+replace tmr_secondary=.
+label values tmr_secondary yesno
+
+tab amp_level_crps
+
+gen amp_ican =0
+replace amp_ican = 1 if amp_nerve_crps==2
+order amp_ican, after (tmr_secondary)
+label values amp_ican yesno
+
+
+tab improvement_yesno amp_ican, col exact
+
+
+tab amp_level_crps budapest_confirmed, col exact
+
+tab amp_level_crps
+
+
+tab surg_before_arrival surg_after_arrival, col exact
+
+
+tab surg_after_arrival
+tab surg_before_arrival
+
+summ crps_surgeries_freq if crps_surgeries_freq>0, d
+
+tab crps_surgeries_freq if crps_surgeries_freq>1
+
+tab  crps_surgeries_freq_ican if crps_surgeries_freq_ican>1
+
+summ crps_surgeries_freq_ican if crps_surgeries_freq_ican>0, d
+
+
+tab amp_level_crps, m
+
+tab amp_ican
+
+
+tab crps_nerve_block surg_after_arrival, row
+
+tab crps_nerve_block_relief surg_after_arrival, row
+
+
+gen amp_major =0
+replace
+
+tab amp_ican improvement_yesno, col exact
+
+
+replace tmr_secondary = 0 if tmr_secondary ==.
+
+replace amp_level_crps = 0 if amp_level_crps ==.
+
+tab tmr_secondary improvement_yesno, col exact
+
+tab amp_level_crps improvement_yesno, col exact
+
+tab amp_level_crps budapest_confirmed, col exact
+
+
