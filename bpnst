@@ -1,0 +1,1292 @@
+
+pwd
+cd "/Users/mrh77/Downloads"
+pwd
+
+
+
+*********** Do file for BPNST 10/10/2024
+
+// filter for bpnst only 
+rename biopsy_dx_liposarc_2 bpnst_type
+tab bpnst_type, m
+drop if bpnst_type ==.
+
+/*
+
+ Biopsy diagnosis - bPNST |      Freq.     Percent        Cum.
+--------------------------+-----------------------------------
+               schwannoma |        177       76.29       76.29
+             neurofibroma |         52       22.41       98.71
+              perineuroma |          1        0.43       99.14
+hybrid nerve sheet tumors |          2        0.86      100.00
+--------------------------+-----------------------------------
+                    Total |        232      100.00
+
+*/
+
+
+
+tab bpnst_type surgery_dx_bpnst
+
+rename location___1 location_head_neck
+rename location___2 location_trunk
+rename location___3 location_le
+rename location___4 location_ue
+rename location___5 location_pelvis
+
+tab mpnst_nerve, m
+
+drop if mpnst_nerve=="" // drop 4
+
+
+
+
+// Generate the nerve_category variable
+gen nerve_category = ""
+
+// Brachial Plexus variations
+replace nerve_category = "Brachial Plexus" if strpos(mpnst_nerve, "Brachial Plexus") > 0 | strpos(mpnst_nerve, "brachial plexus") > 0 | strpos(mpnst_nerve, "Brachial plexus") > 0 | strpos(mpnst_nerve, "brachial Plexus") > 0 | strpos(mpnst_nerve, "BP") > 0 | strpos(mpnst_nerve, "bp") > 0
+
+// Tibial variations
+replace nerve_category = "Tibial" if strpos(mpnst_nerve, "Tibial") > 0 | strpos(mpnst_nerve, "tibial") > 0 | strpos(mpnst_nerve, "Tib") > 0 | strpos(mpnst_nerve, "tib") > 0 | strpos(mpnst_nerve, "Tibia") > 0 | strpos(mpnst_nerve, "tibia") > 0
+
+// Superficial Peroneal Nerve (SPN) variations
+replace nerve_category = "Superficial Peroneal Nerve (SPN)" if strpos(mpnst_nerve, "Superficial Peroneal Nerve") > 0 | strpos(mpnst_nerve, "superficial peroneal nerve") > 0 | strpos(mpnst_nerve, "Superficial peroneal nerve") > 0 | strpos(mpnst_nerve, "superficial Peroneal Nerve") > 0 | strpos(mpnst_nerve, "SPN") > 0 | strpos(mpnst_nerve, "spn") > 0 | strpos(mpnst_nerve, "Superficial P") > 0 | strpos(mpnst_nerve, "superficial p") > 0
+
+// Phrenic variations
+replace nerve_category = "Phrenic" if strpos(mpnst_nerve, "Phrenic") > 0 | strpos(mpnst_nerve, "phrenic") > 0 | strpos(mpnst_nerve, "PHR") > 0 | strpos(mpnst_nerve, "phr") > 0
+
+// Femoral variations
+replace nerve_category = "Femoral" if strpos(mpnst_nerve, "Femoral") > 0 | strpos(mpnst_nerve, "femoral") > 0 | strpos(mpnst_nerve, "Fem") > 0 | strpos(mpnst_nerve, "fem") > 0
+
+// Sciatic variations
+replace nerve_category = "Sciatic" if strpos(mpnst_nerve, "Sciatic") > 0 | strpos(mpnst_nerve, "sciatic") > 0 | strpos(mpnst_nerve, "Sci") > 0 | strpos(mpnst_nerve, "sci") > 0 | strpos(mpnst_nerve, "Sciatica") > 0 | strpos(mpnst_nerve, "sciatica") > 0
+
+// Common Peroneal Nerve (CPN) variations
+replace nerve_category = "Common Peroneal Nerve (CPN)" if strpos(mpnst_nerve, "Common Peroneal Nerve") > 0 | strpos(mpnst_nerve, "common peroneal nerve") > 0 | strpos(mpnst_nerve, "Common peroneal nerve") > 0 | strpos(mpnst_nerve, "common Peroneal Nerve") > 0 | strpos(mpnst_nerve, "CPN") > 0 | strpos(mpnst_nerve, "cpn") > 0 | strpos(mpnst_nerve, "Common P") > 0 | strpos(mpnst_nerve, "common p") > 0
+
+// Intercostal variations
+replace nerve_category = "Intercostal" if strpos(mpnst_nerve, "Intercostal") > 0 | strpos(mpnst_nerve, "intercostal") > 0
+
+// Vagus variations
+replace nerve_category = "Vagus" if strpos(mpnst_nerve, "Vagus") > 0 | strpos(mpnst_nerve, "vagus") > 0
+
+// Radial variations
+replace nerve_category = "Radial" if strpos(mpnst_nerve, "Radial") > 0 | strpos(mpnst_nerve, "radial") > 0
+
+// Ulnar variations
+replace nerve_category = "Ulnar" if strpos(mpnst_nerve, "Ulnar") > 0 | strpos(mpnst_nerve, "ulnar") > 0
+
+// Sural variations
+replace nerve_category = "Sural" if strpos(mpnst_nerve, "Sural") > 0 | strpos(mpnst_nerve, "sural") > 0
+
+// Median variations
+replace nerve_category = "Median" if strpos(mpnst_nerve, "Median") > 0 | strpos(mpnst_nerve, "median") > 0
+
+// Facial variations
+replace nerve_category = "Facial" if strpos(mpnst_nerve, "Facial") > 0 | strpos(mpnst_nerve, "facial") > 0
+
+// Musculocutaneous variations
+replace nerve_category = "Musculocutaneous" if strpos(mpnst_nerve, "Musculocutaneous") > 0 | strpos(mpnst_nerve, "musculocutaneous") > 0
+
+// Digital variations
+replace nerve_category = "Digital" if strpos(mpnst_nerve, "Digital") > 0 | strpos(mpnst_nerve, "digital") > 0
+
+// Saphenous variations
+replace nerve_category = "Saphenous" if strpos(mpnst_nerve, "Saphenous") > 0 | strpos(mpnst_nerve, "saphenous") > 0
+
+// Occipital variations
+replace nerve_category = "Occipital" if strpos(mpnst_nerve, "Occipital") > 0 | strpos(mpnst_nerve, "occipital") > 0
+
+// Hypoglossal variations
+replace nerve_category = "Hypoglossal" if strpos(mpnst_nerve, "Hypoglossal") > 0 | strpos(mpnst_nerve, "hypoglossal") > 0
+
+// Suprascapular variations
+replace nerve_category = "Suprascapular" if strpos(mpnst_nerve, "Suprascapular") > 0 | strpos(mpnst_nerve, "suprascapular") > 0
+
+// Supraclavicular variations
+replace nerve_category = "Supraclavicular" if strpos(mpnst_nerve, "Supraclavicular") > 0 | strpos(mpnst_nerve, "supraclavicular") > 0
+
+// Penile variations
+replace nerve_category = "Penile" if strpos(mpnst_nerve, "Penile") > 0 | strpos(mpnst_nerve, "penile") > 0
+
+// Trigeminal variations
+replace nerve_category = "Trigeminal" if strpos(mpnst_nerve, "Trigeminal") > 0 | strpos(mpnst_nerve, "trigeminal") > 0
+
+// Supratrochlear variations
+replace nerve_category = "Supratrochlear" if strpos(mpnst_nerve, "Supratrochlear") > 0 | strpos(mpnst_nerve, "supratrochlear") > 0
+
+// Cervical Plexus variations
+replace nerve_category = "Cervical Plexus" if strpos(mpnst_nerve, "Cervical Plexus") > 0 | strpos(mpnst_nerve, "cervical plexus") > 0 | strpos(mpnst_nerve, "Cervical plexus") > 0 | strpos(mpnst_nerve, "cervical Plexus") > 0
+
+// Peripheral Nerve variations
+replace nerve_category = "Peripheral Nerve" if strpos(mpnst_nerve, "Peripheral Nerve") > 0 | strpos(mpnst_nerve, "peripheral nerve") > 0 | strpos(mpnst_nerve, "Peripheral nerve") > 0 | strpos(mpnst_nerve, "peripheral Nerve") > 0
+
+
+
+order nerve_category, after(mpnst_nerve)
+
+
+
+* Initialize the binary variables to 0
+replace location_head_neck = 0 
+replace location_trunk = 0 
+replace location_le = 0 
+replace location_ue = 0 
+replace location_pelvis = 0 
+
+tab location_head_neck  ,m 
+tab location_trunk  ,m 
+tab location_le  ,m  
+tab location_ue  ,m  
+tab location_pelvis ,m 
+
+* Head/Neck-related nerves
+replace location_head_neck = 1 if regexm(mpnst_nerve, "(?i)facial|occipital|supratrochlear|vagus|hypoglossal|trigeminal|supraorbital|supraclavicular")
+
+* Trunk-related nerves
+replace location_trunk = 1 if regexm(mpnst_nerve, "(?i)intercostal|phrenic|cervical plexus|supraclavicular")
+
+* Lower extremity (LE)-related nerves
+replace location_le = 1 if regexm(mpnst_nerve, "(?i)sciatic|tibial|femoral|saphenous|common peroneal|superficial peroneal|posterior tibial|dorsal cutaneous|plantar|penile|gluteal")
+
+* Upper extremity (UE)-related nerves
+replace location_ue = 1 if regexm(mpnst_nerve, "(?i)brachial plexus|radial|ulnar|median|musculocutaneous|antebrachial|axillary|digital")
+
+* Pelvis-related nerves
+replace location_pelvis = 1 if regexm(mpnst_nerve, "(?i)obturator|pelvic")
+
+* Verify the categorization
+list mpnst_nerve location_head_neck location_trunk location_le location_ue location_pelvis
+
+
+tab pmrn if nerve_category==""
+
+
+
+
+sort  nerve_category
+
+
+tab bpnst_type if nerve_category ==""
+tab date_of_surgery if nerve_category ==""
+
+tab pmrn date_of_surgery if nerve_category ==""
+
+gen date_of_surgery_2 = date_of_surgery
+order date_of_surgery_2, after (pmrn)
+format date_of_surgery_2 %td
+
+
+
+
+tab date_of_surgery
+
+// do not understand this step?
+drop if date_of_surgery <
+
+
+
+// 97 DPN
+// 98 SPN
+// 99 DPN
+
+
+encode nerve_category, gen(nerve_category_cate)
+order nerve_category_cate, after(nerve_category)
+
+
+tab nerve_category_cate
+
+sort nerve_region
+
+tab  nerve_region nerve_category_cate
+
+
+// distribution of bpnst
+tab nerve_category_cate if nerve_region==1
+tab nerve_category_cate if nerve_region==2
+tab nerve_category_cate if nerve_region==3
+tab nerve_category_cate if nerve_region==4
+tab nerve_category_cate if nerve_region==5
+
+tab bpnst_type
+
+* Assuming your original variable is called 'nerve_category'
+
+* Create a new variable for categorization
+gen nerve_region = .
+
+* Categorizing nerves
+replace nerve_region = 1 if inlist(nerve_category, "C1 root", "Facial", "Hypoglossal", "Occipital", "Trigeminal", "Vagus")
+replace nerve_region = 2 if inlist(nerve_category, "Brachial Plexus", "Intercostal", "Thoracic")
+replace nerve_region = 3 if inlist(nerve_category, "Common Peroneal Nerve (CPN)", "Deep Peroneal Nerve (DPN)", "Medial plantar", "Saphenous", "Sciatic", "Superficial Peroneal Nerve (SPN)", "Tibial")
+replace nerve_region = 4 if inlist(nerve_category, "Axillary", "Musculocutaneous", "Median", "Radial", "Ulnar", "Femoral", "Obturator", "LACN", "MACN")
+replace nerve_region = 5 if inlist(nerve_category, "Penile")
+
+* Label the new variable for better understanding
+label variable nerve_region "Nerve Anatomical Region"
+label define nerve_region_lbl 1 "Head and Neck" 2 "Trunk" 3 "Lower Extremity" 4 "Upper Extremity" 5 "Pelvis"
+label values nerve_region nerve_region_lbl
+
+order nerve_region, after(nerve_category_cate)
+
+
+tab nerve_category_cate, m
+tab nerve_region, m
+
+tab nerve_category if nerve_region==., m
+
+tab mpnst_nerve if nerve_category_cate ==
+
+pwd
+cd "/Users/mrh77/Partners HealthCare Dropbox/Floris Raasveld/ICAN research/j. Nerve tumor studies/bPNST recurrence/Data"
+pwd
+
+
+
+// export to excel
+export excel "bpnst_.xlsx", firstrow(variables) replace
+
+
+
+
+
+
+
+*****************************
+** after cleaning op notes **
+*****************************
+
+
+
+
+
+
+
+
+drop race hisp_ethnicity insurance_type patient_characterist_v_0 opioid_use_preop opioid_use_postop neurop_pain_med_use_preop neurop_pain_med_use_postop diabetes hypothyroidism psych_comorb psych_comorbs___1 psych_comorbs___2 psych_comorbs___3 psych_comorbs___4 per_vasc_disease ckd hx_chronic_pain crps nf1 nf2 schwannomatosis mpnst_radiological
+
+
+
+
+
+pwd
+cd "/Users/mrh77/Partners HealthCare Dropbox/Floris Raasveld/ICAN research/j. Nerve tumor studies/bPNST recurrence/Data"
+pwd
+
+
+merge 1:1 pmrn using "bpnst_clean_surg_techniques.dta"
+
+
+
+//
+
+drop if record_id==.
+drop _merge
+drop count_pm
+drop if surgical_report==""
+drop if surgical_technique_num ==0 // n=205
+
+gen surgical_technique_clean = surgical_technique_num
+replace surgical_technique_clean = 3 if surgical_technique_num==7
+replace surgical_technique_clean = 3 if surgical_technique_num==2
+replace surgical_technique_clean = 3 if surgical_technique_num==5
+
+tab surgical_technique_clean
+
+
+
+
+* Encode the variables and drop the original ones
+encode race, gen(race_encoded)
+drop race
+
+rename race_encoded race
+
+encode hisp_ethnicity, gen(hisp_ethnicity_encoded)
+drop hisp_ethnicity
+rename hisp_ethnicity_encoded hisp_ethnicity
+
+encode insurance_type, gen(insurance_type_encoded)
+drop insurance_type
+rename insurance_type_encoded insurance_type
+
+encode patient_characterist_v_0, gen(patient_characterist_v_0_encoded)
+drop patient_characterist_v_0
+rename patient_characterist_v_0_encoded patient_characterist_v_0
+
+encode opioid_use_preop, gen(opioid_use_preop_encoded)
+drop opioid_use_preop
+rename opioid_use_preop_encoded opioid_use_preop
+
+encode opioid_use_postop, gen(opioid_use_postop_encoded)
+drop opioid_use_postop
+rename opioid_use_postop_encoded opioid_use_postop
+
+encode neurop_pain_med_use_preop, gen(npmp_preop_encoded)
+drop neurop_pain_med_use_preop
+rename npmp_preop_encoded neurop_pain_med_use_preop
+
+encode neurop_pain_med_use_postop, gen(npmp_postop_encoded)
+drop neurop_pain_med_use_postop
+rename npmp_postop_encoded neurop_pain_med_use_postop
+
+
+encode diabetes, gen(diabetes_encoded)
+drop diabetes
+rename diabetes_encoded diabetes
+
+encode hypothyroidism, gen(hypothyroidism_encoded)
+drop hypothyroidism
+rename hypothyroidism_encoded hypothyroidism
+
+encode psych_comorb, gen(psych_comorb_encoded)
+drop psych_comorb
+rename psych_comorb_encoded psych_comorb
+
+encode psych_comorbs___1, gen(psych_comorbs___1_encoded)
+drop psych_comorbs___1
+rename psych_comorbs___1_encoded psych_comorbs___1
+
+encode psych_comorbs___2, gen(psych_comorbs___2_encoded)
+drop psych_comorbs___2
+rename psych_comorbs___2_encoded psych_comorbs___2
+
+encode psych_comorbs___3, gen(psych_comorbs___3_encoded)
+drop psych_comorbs___3
+rename psych_comorbs___3_encoded psych_comorbs___3
+
+encode psych_comorbs___4, gen(psych_comorbs___4_encoded)
+drop psych_comorbs___4
+rename psych_comorbs___4_encoded psych_comorbs___4
+
+encode per_vasc_disease, gen(per_vasc_disease_encoded)
+drop per_vasc_disease
+rename per_vasc_disease_encoded per_vasc_disease
+
+encode ckd, gen(ckd_encoded)
+drop ckd
+rename ckd_encoded ckd
+
+encode hx_chronic_pain, gen(hx_chronic_pain_encoded)
+drop hx_chronic_pain
+rename hx_chronic_pain_encoded hx_chronic_pain
+
+encode crps, gen(crps_encoded)
+drop crps
+rename crps_encoded crps
+
+encode nf1, gen(nf1_encoded)
+drop nf1
+rename nf1_encoded nf1
+
+encode nf2, gen(nf2_encoded)
+drop nf2
+rename nf2_encoded nf2
+
+encode schwannomatosis, gen(schwannomatosis_encoded)
+drop schwannomatosis
+rename schwannomatosis_encoded schwannomatosis
+
+encode mpnst_radiological, gen(mpnst_radiological_encoded)
+drop mpnst_radiological
+rename mpnst_radiological_encoded mpnst_radiological
+
+
+
+
+
+* Define the label
+label define surgical_technique_labels ///
+    0 "not specified" ///
+    1 "wide local excision / en bloc" ///
+    2 "spinal tumor excision" ///
+    3 "intracapsular resection" ///
+    4 "interfascicular resection" ///
+    5 "intraneural resection" ///
+    6 "asymmetric tumor removal" ///
+    7 "debulking" ///
+    8 "other"
+
+* Assign the label to the variable
+label values surgical_technique_num surgical_technique_labels
+label values surgical_technique_clean surgical_technique_labels
+
+
+
+
+* Sort the dataset by pmrn
+sort pmrn
+
+* Create a new variable to count occurrences based on _n
+by pmrn: gen count_pm = _n
+
+
+
+
+tab date_of_diagnosis_v2
+
+gen recurrence_1 =0
+replace recurrence_1 = 1 if date_of_diagnosis_v2 !=.
+gen recurrence_1_date = date_of_diagnosis_v2
+format recurrence_1_date %td
+
+
+gen recurrence_2 =0
+replace recurrence_2 = 1 if date_of_diagnosis_v2_v2 !=.
+gen recurrence_2_date = date_of_diagnosis_v2_v2
+format recurrence_2_date %td
+
+
+tab date_of_diagnosis_v2_v2
+
+
+
+
+
+
+label define yes_no 1 "yes" 0 "no"
+
+label values recurrence_1 yes_no
+label values recurrence_2 yes_no
+
+rename mpnst_radiological_2___1 radio_us
+
+rename mpnst_radiological_2___2 radio_ct
+
+rename mpnst_radiological_2___3 radio_mri
+
+rename mpnst_radiological_2___4 radio_mrn
+
+rename mpnst_radiological_2___5 radio_other
+
+label values radio_us yes_no
+label values radio_ct yes_no
+label values radio_mri yes_no
+label values radio_mrn yes_no
+label values radio_other yes_no
+
+label values location_head_neck yes_no
+label values location_trunk yes_no
+label values location_le yes_no
+label values location_ue yes_no
+label values location_pelvis yes_no
+
+//
+
+
+gen age_surgery_2 = (date_of_surgery_2 - date_of_birth) / 365.2425
+tab age_surgery_2
+
+format %td date_of_birth
+
+tab recurrence_1 surgical_technique_clean, chi row
+
+
+gen diff_dx1_dx2_d = recurrence_1_date - date_of_diagnosis
+gen diff_dx2_dx3_d = recurrence_2_date - date_of_diagnosis
+
+gen diff_dx1_dx2_y = diff_dx1_dx2_d/365.2425
+gen diff_dx2_dx3_y = diff_dx2_dx3_d/365.2425
+
+
+encode classifications, gen (classifications_cate)
+
+drop classifications
+drop techniquenumber
+rename classifications_cate surg_tech_cate
+
+tab surg_tech_cate surgical_technique_clean, m
+
+
+
+
+
+encode classifications, gen (classifications_cate)
+
+drop classifications
+rename classifications_cate surg_tech_cate_new
+
+tab surg_tech_cate_new surgical_technique_clean, m
+
+tab recurrence_1 surg_tech_cate_new, chi col
+
+tab recurrence_1 surgery_dx_bpnst
+
+tab pmrn if recurrence_1 
+
+ 
+tab pmrn date_of_surgery if recurrence_1 ==1
+
+
+
+drop surg_tech_cate
+drop surgical_technique_clean
+
+
+tab date_of_diagnosis_v2 if pmrn == 3456513
+tab date_of_diagnosis_v2 if pmrn == 100177400
+
+
+
+
+drop tumor_volume_ABC2
+
+gen tumor_volume_ABC2 = (txt_size_dim_1_cm_2 * txt_size_dim_2_cm_2 * txt_size_dim_3_cm_2) / 2
+
+tab txt_size_dim_1_cm_2, m
+tab txt_size_dim_2_cm_2, m
+tab txt_size_dim_3_cm_2, m
+
+order tumor_volume_ABC2, after (txt_size_dim_3_cm_2)
+
+
+drop size_cm_2-ext_disease_at_pres
+drop txt_size_dim_1_cm-imaging_dimensions_other
+
+tab recurrence_1
+
+
+tab  tumor_volume_ABC2 
+
+
+
+tab tumor_volume_ABC2 recurrence_1, exact col
+
+ranksum tumor_volume_ABC2, by(recurrence_1)
+
+kwallis tumor_volume_ABC2, by(nerve_category_cate)
+kwallis tumor_volume_ABC2, by(nerve_region)
+kwallis tumor_volume_ABC2, by(bpnst_type)
+
+tab recurrence_1 bpnst_type, exact col
+tab recurrence_1 nerve_region, chi col
+
+
+ 
+
+// clean
+drop mpnst_nerve_2___1 - mpnst_nerve_2___21
+drop social_and_medical_h_v_1
+drop biopsy_dx_liposarc
+drop txt_other_biopsy_dx - location_pelvis
+drop mets_location___1 - mets_at_dx_location
+
+
+drop initial_event_tumor__v_2
+drop mpnst_nerve_handling_cond - initial_event_treatm_v_3
+
+
+rename non_hend_comp_type___1 uti
+rename non_hend_comp_type___2 delirium
+rename non_hend_comp_type___3 pneumonia
+rename non_hend_comp_type___4 dvt_pe
+rename non_hend_comp_type___5 wound_infection
+rename non_hend_comp_type___6 other
+
+label define yes_no 1 "yes" 0 "no"
+label values delirium yes_no
+label values pneumonia yes_no
+label values dvt_pe yes_no
+label values wound_infection yes_no
+label values other yes_no
+label values uti yes_no
+
+
+tab loc_rec
+
+drop mets-days_to_mets
+
+tab np_presence
+tab neuroma_presence
+
+
+tab postop_complication
+tab mpnst_radiological
+
+tab age_surgery
+
+rename psych_comorbs___1 depression
+rename psych_comorbs___2 anxiety
+rename psych_comorbs___3 pers_disord
+rename psych_comorbs___4 ptsd
+
+
+
+
+
+/////
+
+
+replace hisp_ethnicity=0 if hisp_ethnicity==.
+
+tab pmrn if race==.
+
+tab insurance_type
+
+
+
+gen race_white = 0
+replace race_white = 1 if race==1
+
+gen insurance_gov = 0
+replace insurance_gov = 1 if insurance_type == 1
+
+tab hypothyroidism
+
+
+
+***
+
+///
+
+label values depression yes_no
+label values anxiety yes_no
+label values pers_disord yes_no
+label values ptsd yes_no
+
+
+
+tab mpnst_compression_pain
+tab pnst_deficit_motor
+tab pnst_deficit_sensory
+tab np_presence
+tab neuroma_presence
+
+replace mpnst_compression_pain = 0 if mpnst_compression_pain==.
+replace pnst_deficit_motor = 0 if pnst_deficit_motor==.
+replace pnst_deficit_sensory = 0 if pnst_deficit_sensory==.
+
+
+
+replace np_presence=0 if np_presence!=1
+replace neuroma_presence=0 if neuroma_presence!=1
+replace np_presence =1 if neuroma_presence==1
+
+label values np_presence yes_no
+label values neuroma_presence yes_no
+
+label values race_white yes_no
+label values insurance_gov yes_no
+
+replace pnst_preop_spread =0 if pnst_preop_spread==.
+replace pnst_postop_spread =0 if pnst_postop_spread==.
+
+
+
+
+gen size_cate_5cm = .
+replace size_cate_5cm = 1 if tumor_volume_ABC2 < 1
+replace size_cate_5cm = 2 if tumor_volume_ABC2 >= 1 & tumor_volume_ABC2 <= 5
+replace size_cate_5cm = 3 if tumor_volume_ABC2 > 5
+replace size_cate_5cm = 4 if tumor_volume_ABC2 > 50
+label define size_cate_cm 1 "Small (<1 cm³)" 2 "Medium (1–5 cm³)" 3 "Large (5.1-50 cm³)" 4 "Extreme (>50 cm³)"
+label values size_cate_5cm size_cate_cm
+
+
+egen p25 = pctile(tumor_volume_ABC2), p(25)
+egen p75 = pctile(tumor_volume_ABC2), p(75)
+egen p95 = pctile(tumor_volume_ABC2), p(95)
+
+gen size_cate_per = .
+replace size_cate_per = 1 if tumor_volume_ABC2 <= p25
+replace size_cate_per = 2 if tumor_volume_ABC2 > p25 & tumor_volume_ABC2 <= p75
+replace size_cate_per = 3 if tumor_volume_ABC2 > p75
+replace size_cate_per = 4 if tumor_volume_ABC2 > p95
+label define size_cate_perc 1 "Small (≤25th percentile)" 2 "Medium (25–75th percentile)" 3 "Large (>75th percentile)" 4 "Extreme (>95th percentile)"
+label values size_cate_per size_cate_perc
+
+tab size_cate_5cm size_cate_per
+
+tab size_cate_5cm
+tab  size_cate_per
+
+// Natural log
+gen log_tumor_volume_ln = ln(tumor_volume_ABC2 + 1)
+
+// Log base 10
+gen log_tumor_volume_log10 = log10(tumor_volume_ABC2 + 1)
+
+/*******************************************************************************
+* Analysis of Patient Data: Demographics, Characteristics, and Bivariate Analyses
+* Created: December 2024
+********************************************************************************/
+
+/* Clear workspace and set up environment */
+
+ssc install table1, replace
+
+
+
+/* 1. Demographics and Patient Characteristics Table */
+// Note: Using exact variable names from the CSV file
+table1, vars(age_surgery_2 conts \ ///
+            female_sex bin \ ///
+            race_white bin \ ///
+            hisp_ethnicity bin \ ///
+            insurance_gov bin \ ///
+            opioid_use_preop bin \ ///
+            opioid_use_postop bin \ ///
+            neurop_pain_med_use_preop bin \ ///
+            neurop_pain_med_use_postop bin \ ///
+            diabetes bin \ ///
+            hypothyroidism bin \ ///
+            psych_comorb bin \ ///
+            depression bin \ ///
+            anxiety bin \ ///
+            ptsd bin \ ///
+            per_vasc_disease bin \ ///
+            ckd bin \ ///
+            hx_chronic_pain bin \ ///
+            crps bin \ ///
+            nf1 bin \ ///
+            nf2 bin \ ///
+            schwannomatosis bin \ ///
+            mpnst_radiological bin \ ///
+            radio_us bin \ ///
+            radio_ct bin \ ///
+            radio_mri bin \ ///
+            radio_mrn bin \ ///
+            radio_other bin \ ///
+            pnst_preop_spread bin \ ///
+            pnst_postop_spread bin \ ///
+            mpnst_compression_pain bin \ ///
+            pnst_deficit_motor bin \ ///
+            pnst_deficit_sensory bin \ ///
+            np_presence bin \ ///
+            neuroma_presence bin \ ///
+            race cat \ ///
+            insurance_type cat \ ///
+            bpnst_type cat \ ///
+            nerve_category_cate cat \ ///
+            nerve_region cat \ ///
+			size_cate_5cm cat \ ///
+			size_cate_per cat \ ///
+            tumor_volume_ABC2 conts) ///
+    saving(Demographics_table_v2.xlsx, replace)
+
+/* 2. Bivariate Comparisons for Recurrence */
+// Compare all variables between recurrence groups
+table1, vars(age_surgery_2 conts \ ///
+            female_sex bin \ ///
+            race_white bin \ ///
+            hisp_ethnicity bin \ ///
+            insurance_gov bin \ ///
+            opioid_use_preop bin \ ///
+            opioid_use_postop bin \ ///
+            neurop_pain_med_use_preop bin \ ///
+            neurop_pain_med_use_postop bin \ ///
+            diabetes bin \ ///
+            hypothyroidism bin \ ///
+            psych_comorb bin \ ///
+            depression bin \ ///
+            anxiety bin \ ///
+            ptsd bin \ ///
+            per_vasc_disease bin \ ///
+            ckd bin \ ///
+            hx_chronic_pain bin \ ///
+            crps bin \ ///
+            nf1 bin \ ///
+            nf2 bin \ ///
+            schwannomatosis bin \ ///
+            mpnst_radiological bin \ ///
+            radio_us bin \ ///
+            radio_ct bin \ ///
+            radio_mri bin \ ///
+            radio_mrn bin \ ///
+            radio_other bin \ ///
+            pnst_preop_spread bin \ ///
+            pnst_postop_spread bin \ ///
+            mpnst_compression_pain bin \ ///
+            pnst_deficit_motor bin \ ///
+            pnst_deficit_sensory bin \ ///
+            np_presence bin \ ///
+            neuroma_presence bin \ ///
+            race cat \ ///
+            insurance_type cat \ ///
+            bpnst_type cat \ ///
+            nerve_category_cate cat \ ///
+            nerve_region cat \ ///
+			size_cate_5cm cat \ ///
+			size_cate_per cat \ ///
+            tumor_volume_ABC2 conts) ///
+    by(recurrence_1) test saving(Recurrence_bivariate_comparisons.xlsx, replace)
+
+
+logit recurrence_1 age_surgery_2 psych_comorb depression nf1 schwannomatosis pnst_deficit_motor neuroma_presence bpnst_type nerve_category_cate
+
+
+// Define your dependent variable and predictors
+lasso logit recurrence_1 age_surgery_2 psych_comorb depression nf1 schwannomatosis pnst_deficit_motor neuroma_presence bpnst_type nerve_category_cate
+
+// View the selected model
+lassoknots
+
+// Get the final coefficients
+lassocoef
+
+// Predict probabilities or outcomes
+predict lasso_predicted
+
+
+sort lasso_predicted
+
+tab lasso_predicted, m
+
+drop bpnst_type_simp
+
+gen bpnst_type_simp = bpnst_type
+replace bpnst_type_simp = 1 if bpnst_type >2
+replace bpnst_type_simp = 2 if bpnst_type_simp ==5
+
+tab bpnst_type_simp
+
+
+set memory 100m
+exlogistic recurrence_1 schwannomatosis  nf1 pnst_deficit_motor neuroma_presence
+exlogistic recurrence_1 schwannomatosis  nf1  bpnst_type
+
+exlogistic recurrence_1 schwannomatosis nf1
+
+logit recurrence_1 schwannomatosis nf1, or
+firthlogit recurrence_1 schwannomatosis nf1
+
+logit recurrence_1 schwannomatosis nf1 bpnst_type, or
+logit recurrence_1 schwannomatosis nf1 bpnst_type_simp, or
+
+
+exlogistic recurrence_1 pnst_deficit_motor neuroma_presence
+
+exlogistic recurrence_1 psych_comorb anxiety
+
+logistic recurrence_1 psych_comorb anxiety
+
+logistic recurrence_1 schwannomatosis  nf1 pnst_deficit_motor neuroma_presence, or
+
+// this one multivar model
+logit recurrence_1  mpnst_compression_pain  pnst_deficit_motor  pnst_deficit_sensory    np_presence   neuroma_presence, or
+
+logit recurrence_1 psych_comorb  nf1  pnst_deficit_motor      neuroma_presence, or
+
+
+logit recurrence_1  mpnst_compression_pain  pnst_deficit_motor  pnst_deficit_sensory    np_presence   neuroma_presence, or
+
+exlogistic recurrence_1   pnst_deficit_motor  pnst_deficit_sensory    np_presence   neuroma_presence
+
+nerve_region
+
+tab nerve_category_cate
+
+/* 3. Bivariate Comparisons for compression_pain */
+// Compare all variables between compression_pain groups
+table1, vars(age_surgery_2 conts \ ///
+            female_sex bin \ ///
+            race_white bin \ ///
+            hisp_ethnicity bin \ ///
+            insurance_gov bin \ ///
+            opioid_use_preop bin \ ///
+            opioid_use_postop bin \ ///
+            neurop_pain_med_use_preop bin \ ///
+            neurop_pain_med_use_postop bin \ ///
+            diabetes bin \ ///
+            hypothyroidism bin \ ///
+            psych_comorb bin \ ///
+            depression bin \ ///
+            anxiety bin \ ///
+            ptsd bin \ ///
+            per_vasc_disease bin \ ///
+            ckd bin \ ///
+            hx_chronic_pain bin \ ///
+            crps bin \ ///
+            nf1 bin \ ///
+            nf2 bin \ ///
+            schwannomatosis bin \ ///
+            mpnst_radiological bin \ ///
+            radio_us bin \ ///
+            radio_ct bin \ ///
+            radio_mri bin \ ///
+            radio_mrn bin \ ///
+            radio_other bin \ ///
+            pnst_preop_spread bin \ ///
+            pnst_postop_spread bin \ ///
+            recurrence_1 bin \ ///
+            pnst_deficit_motor bin \ ///
+            pnst_deficit_sensory bin \ ///
+            np_presence bin \ ///
+            neuroma_presence bin \ ///
+            race cat \ ///
+            insurance_type cat \ ///
+            bpnst_type cat \ ///
+            nerve_category_cate cat \ ///
+            nerve_region cat \ ///
+			size_cate_5cm cat \ ///
+			size_cate_per cat \ ///
+            tumor_volume_ABC2 conts) ///
+    by(mpnst_compression_pain) test saving(comppain_bivariate_comparisons.xlsx, replace)
+
+	
+logit mpnst_compression_pain race_white hisp_ethnicity insurance_gov opioid_use_postop opioid_use_preop neurop_pain_med_use_postop neurop_pain_med_use_preop psych_comorb depression crps nerve_region nerve_category_cate tumor_volume_ABC2         ,or
+
+/// this one multivar model	
+logit mpnst_compression_pain race_white insurance_gov psych_comorb anxiety opioid_use_postop neurop_pain_med_use_postop tumor_volume_ABC2, or
+
+
+logit mpnst_compression_pain psych_comorb i.race i.insurance_type opioid_use_postop neurop_pain_med_use_postop tumor_volume_ABC2, or
+
+tab mpnst_compression_pain psych_comorb, exact
+
+	
+	
+/* 4. Bivariate Comparisons for np_presence */
+// Compare all variables between np_presence groups
+table1, vars(age_surgery_2 conts \ ///
+            female_sex bin \ ///
+            race_white bin \ ///
+            hisp_ethnicity bin \ ///
+            insurance_gov bin \ ///
+            opioid_use_preop bin \ ///
+            opioid_use_postop bin \ ///
+            neurop_pain_med_use_preop bin \ ///
+            neurop_pain_med_use_postop bin \ ///
+            diabetes bin \ ///
+            hypothyroidism bin \ ///
+            psych_comorb bin \ ///
+            depression bin \ ///
+            anxiety bin \ ///
+            ptsd bin \ ///
+            per_vasc_disease bin \ ///
+            ckd bin \ ///
+            hx_chronic_pain bin \ ///
+            crps bin \ ///
+            nf1 bin \ ///
+            nf2 bin \ ///
+            schwannomatosis bin \ ///
+            mpnst_radiological bin \ ///
+            radio_us bin \ ///
+            radio_ct bin \ ///
+            radio_mri bin \ ///
+            radio_mrn bin \ ///
+            radio_other bin \ ///
+            pnst_preop_spread bin \ ///
+            pnst_postop_spread bin \ ///
+            recurrence_1 bin \ ///
+            pnst_deficit_motor bin \ ///
+            pnst_deficit_sensory bin \ ///
+            mpnst_compression_pain bin \ ///
+            neuroma_presence bin \ ///
+            race cat \ ///
+            insurance_type cat \ ///
+            bpnst_type cat \ ///
+            nerve_category_cate cat \ ///
+            nerve_region cat \ ///
+			size_cate_5cm cat \ ///
+			size_cate_per cat \ ///
+            tumor_volume_ABC2 conts) ///
+    by(np_presence) test saving(NP_bivariate_comparisons.xlsx, replace)	
+	
+
+logit np_presence insurance_gov opioid_use_preop neurop_pain_med_use_preop schwannomatosis  , or
+
+logit np_presence psych_comorb depression opioid_use_preop neurop_pain_med_use_preop, or	
+
+logit np_presence insurance_gov psych_comorb opioid_use_preop neurop_pain_med_use_preop, or	
+	
+/* End of analysis */
+
+tab female_sex
+
+
+
+// Loop through all specified variables
+foreach var in age_surgery_2 female_sex race_white hisp_ethnicity insurance_gov opioid_use_preop ///
+               opioid_use_postop neurop_pain_med_use_preop neurop_pain_med_use_postop diabetes hypothyroidism ///
+               psych_comorb depression anxiety ptsd per_vasc_disease ckd hx_chronic_pain crps nf1 nf2 ///
+               schwannomatosis mpnst_radiological radio_us radio_ct radio_mri radio_mrn radio_other pnst_preop_spread ///
+               pnst_postop_spread mpnst_compression_pain pnst_deficit_motor pnst_deficit_sensory np_presence ///
+               neuroma_presence race insurance_type bpnst_type nerve_category_cate nerve_region tumor_volume_ABC2 {
+    
+    // Display tabulate with missing values
+    tab `var', m
+}
+
+
+
+////
+//// CORRECT MULTIVAR ANALYSIS
+
+// recurrence model
+logit recurrence_1 psych_comorb  nf1  pnst_deficit_motor neuroma_presence, or
+
+estat gof
+
+
+
+
+// preop pain model
+logit mpnst_compression_pain psych_comorb opioid_use_postop opioid_use_preop neurop_pain_med_use_postop neurop_pain_med_use_preop hx_chronic_pain, or
+
+estat gof
+
+// postop pain model
+logit np_presence psych_comorb opioid_use_postop opioid_use_preop neurop_pain_med_use_postop neurop_pain_med_use_preop, or
+
+estat gof
+
+
+
+
+/*=========================================================================
+ Bivariate analysis and visualization for tumor_volume_ABC2
+=========================================================================*/
+
+*** DICHOTOMOUS VARIABLES ***
+
+// Binary demographics and clinical characteristics
+local varlist female_sex race_white hisp_ethnicity insurance_gov ///
+    opioid_use_preop opioid_use_postop neurop_pain_med_use_preop ///
+    neurop_pain_med_use_postop diabetes hypothyroidism psych_comorb ///
+    depression anxiety ptsd per_vasc_disease ckd ///
+    hx_chronic_pain crps nf1 nf2 schwannomatosis
+
+foreach var of local varlist {
+    ranksum tumor_volume_ABC2, by(`var')
+}
+
+// Binary tumor/surgery characteristics
+local varlist mpnst_radiological radio_us radio_ct radio_mri radio_mrn ///
+    radio_other pnst_preop_spread pnst_postop_spread ///
+    mpnst_compression_pain pnst_deficit_motor pnst_deficit_sensory ///
+    np_presence neuroma_presence
+
+foreach var of local varlist {
+    ranksum tumor_volume_ABC2, by(`var')
+}
+
+
+
+// Binary demographics and clinical characteristics
+local varlist female_sex race_white hisp_ethnicity insurance_gov ///
+    opioid_use_preop opioid_use_postop neurop_pain_med_use_preop ///
+    neurop_pain_med_use_postop diabetes hypothyroidism psych_comorb ///
+    depression anxiety ptsd per_vasc_disease ckd ///
+    hx_chronic_pain crps nf1 nf2 schwannomatosis
+
+	
+foreach var of local varlist {
+    ttest tumor_volume_ABC2, by(`var')
+}
+
+ranksum tumor_volume_ABC2, by(nf1)
+ranksum tumor_volume_ABC2, by(psych_comorb)
+nf1
+
+// Binary tumor/surgery characteristics
+local varlist mpnst_radiological radio_us radio_ct radio_mri radio_mrn ///
+    radio_other pnst_preop_spread pnst_postop_spread ///
+    mpnst_compression_pain pnst_deficit_motor pnst_deficit_sensory ///
+    np_presence neuroma_presence
+
+foreach var of local varlist {
+    ttest tumor_volume_ABC2, by(`var')
+}
+
+
+
+*** CATEGORICAL VARIABLES ***
+
+// Categorical variables
+local varlist race insurance_type bpnst_type nerve_category_cate nerve_region
+
+foreach var of local varlist {
+    kwallis tumor_volume_ABC2, by(`var')
+}
+
+*** CONTINUOUS VARIABLES ***
+
+// Continuous variable
+local varlist age_surgery_2
+
+foreach var of local varlist {
+    spearman tumor_volume_ABC2 `var'
+}
+
+tab tumor_volume_ABC2 bpnst_type
+
+
+// wihtout extremes
+
+twoway ///
+    (scatter    tumor_volume_ABC2 age_surgery_2 if tumor_volume_ABC2 <50  ) ///
+    (lfit      tumor_volume_ABC2 age_surgery_2  if tumor_volume_ABC2 <50  ), ///
+    xtitle("age (years)") ytitle("volume (ABC/2, cm^3)") ///
+	legend(off) ///
+	title("tumor volume and age ") ///
+	subtitle("<50cm3") ///
+	text(-15 1 "", size(small) color(blue))
+	
+	
+// regular	
+twoway ///
+    (scatter    tumor_volume_ABC2 age_surgery_2 ) ///
+    (lfit      tumor_volume_ABC2 age_surgery_2 ), ///
+    xtitle("age (years)") ytitle("volume (ABC/2, cm^3)") ///
+	legend(off) ///
+	title("tumor volume and age ") ///
+	subtitle("") ///
+	text(-15 1 "", size(small) color(blue))
+	
+// log scaled	
+	twoway ///
+    (scatter  log_tumor_volume_ln age_surgery_2 ) ///
+    (lfit  log_tumor_volume_ln  age_surgery_2 ), ///
+    xtitle("age") ytitle("volume") ///
+	legend(off) ///
+	title("tumor volume and age ") ///
+	subtitle("Log-transformed tumor volume using the natural logarithm (ln)") ///
+	text(-15 1 "", size(small) color(blue))
+
+	twoway ///
+    (scatter  log_tumor_volume_log10 age_surgery_2 ) ///
+    (lowess  log_tumor_volume_log10  age_surgery_2 ), ///
+    xtitle("age") ytitle("volume") ///
+	legend(off) ///
+	title("tumor volume and age ") ///
+	subtitle("") ///
+	text(-15 1 "", size(small) color(blue))
+	
+histogram log_tumor_volume_ln, width(0.1) ///
+    title("Distribution of Log-Transformed Tumor Volume") ///
+    xtitle("Log-Transformed Tumor Volume (ln)") ///
+    ytitle("Frequency") ///
+    legend(off)
+	
+	histogram tumor_volume_ABC2, width(0.1) ///
+    title("Distribution of Tumor Volume") ///
+    xtitle(" Tumor Volume ") ///
+    ytitle("Frequency") ///
+    legend(off)
+	
+	
+	
+twoway (histogram log_tumor_volume_ln, width(0.1) percent color(blue%50) lcolor(black)) ///
+       (kdensity log_tumor_volume_ln, lcolor(red) lwidth(medium)), ///
+       title("Histogram and Kernel Density Plot of Log-Transformed Tumor Volume") ///
+       xtitle("Log-Transformed Tumor Volume (ln)") ///
+       ytitle("Density") ///
+       graphregion(color(white)) ///
+       plotregion(margin(0 0 10 0))
+
+violin log_tumor_volume_ln, ///
+    title("Violin Plot of Log-Transformed Tumor Volume") ///
+    ytitle("Log-Transformed Tumor Volume (ln)") ///
+    graphregion(color(white)) ///
+    legend(off)
+	
+	graph box log_tumor_volume_ln, ///
+    title("Box Plot of Log-Transformed Tumor Volume") ///
+    ytitle("Log-Transformed Tumor Volume (ln)") ///
+    box(1, lcolor(blue)) ///
+    median(lcolor(black) lwidth(medium)) ///
+    graphregion(color(white)) ///
+    plotregion(margin(0 0 10 0)) ///
+    legend(off)
+
+graph box log_tumor_volume_ln, over(bpnst_type) ///
+    title("Size Distribution by BPNST Type") ///
+    ytitle("Log-Transformed Tumor Volume (ln)") ///
+    graphregion(color(white)) ///
+    plotregion(margin(0 0 10 0))
+	
+graph box tumor_volume_ABC2, over(bpnst_type) ///
+    title("Size Distribution by BPNST Type") ///
+    ytitle("Log-Transformed Tumor Volume (ln)") ///
+    graphregion(color(white)) ///
+    plotregion(margin(0 0 10 0))
+
+	
+graph box log_tumor_volume_ln, over(bpnst_type) by(size_cate_5cm) ///
+    title("Tumor Size Distribution by BPNST Type (Schwannoma and Neurofibroma)") ///
+    graphregion(color(white)) ///
+    plotregion(margin(0 0 10 0)) ///
+    legend(label(1 "Small") label(2 "Medium") label(3 "Large") label(4 "Extreme"))
+
+	
+	
+	
+twoway (histogram log_tumor_volume_ln, width(0.1) percent color(blue%50) lcolor(black)) ///
+       (kdensity log_tumor_volume_ln, lcolor(red) lwidth(medium)), ///
+       by(bpnst_type, total) ///
+       title("Tumor Size Distribution with Kernel Density Curve") ///
+       xtitle("Log-Transformed Tumor Volume (ln)") ///
+       ytitle("Density (%)") ///
+       legend(order(1 "Histogram" 2 "Kernel Density")) ///
+       graphregion(color(white)) ///
+       plotregion(margin(0 0 10 0))
+
+graph box log_tumor_volume_ln, over(bpnst_type) ///
+    title("Tumor Size Distribution by BPNST Type") ///
+    graphregion(color(white)) ///
+    plotregion(margin(0 0 10 0)) 
+	   
+/*=========================================================================
+Multivar analysis
+======================================================================*/
+
+
+
+
+
+
+
+
+/*=========================================================================
+ Visualization
+=========================================================================*/
+
+// Box plots for categorical variables
+foreach var of local varlist race insurance_type bpnst_type nerve_category_cate nerve_region {
+    graph box tumor_volume_ABC2, over(`var') ///
+    title("Tumor Volume by `var'") ///
+    subtitle("Distribution Analysis") ///
+    saving("`var'_boxplot", replace)
+}
+
+// Scatter plot for continuous variable (age)
+twoway ///
+    (scatter tumor_volume_ABC2 age_surgery_2) ///
+    (lfit tumor_volume_ABC2 age_surgery_2), ///
+    title("Tumor Volume vs Age at Surgery") ///
+    xtitle("Age at Surgery") ///
+    ytitle("Tumor Volume") ///
+    legend(off)
+
+// Box plots for comparing tumor volume across binary variables
+foreach var in female_sex race_white hisp_ethnicity {
+    graph box tumor_volume_ABC2, over(`var') ///
+    title("Tumor Volume by `var'") ///
+    subtitle("Comparison Analysis") ///
+    saving("`var'_comparison", replace)
+}
+
+
+
+///
+
+summ tumor_volume_ABC2, d
+
+
+
+
+
+sort nerve_category_cate
+
+tab nerve_region
+
+
+tab nerve_category_cate if nerve_region==1
+tab nerve_category_cate if nerve_region==2
+tab nerve_category_cate if nerve_region==3
+tab nerve_category_cate if nerve_region==4
+tab nerve_category_cate if nerve_region==5
