@@ -1,0 +1,580 @@
+// RPDR filter code for STATA
+// CRPS example
+
+// Dia data
+// do file to filter out patients who have crps mentioned
+
+// Set the display format to show full numbers
+format empi %12.0f
+
+
+gen diagnosis_name_lower = lower(diagnosis_name)
+gen crps_occurrence = strpos(diagnosis_name_lower, "crps")
+gen crps_full_occurrence = strpos(diagnosis_name_lower, "complex regional pain syndrome ")
+gen pain_occurrence = strpos(diagnosis_name_lower, "pain")
+gen complex_occurrence = strpos(diagnosis_name_lower, "complex")
+gen sudeck_occurrence = strpos(diagnosis_name_lower, "sudeck ")
+gen rsd_full_occurrence = strpos(diagnosis_name_lower, "regional sensitive dysphoria ")
+
+tab crps_occurrence //0
+tab crps_full_occurrence // 41987
+tab complex_occurrence
+tab sudeck_occurrence //0
+tab rsd_full_occurrence //0
+
+
+
+tab diagnosis_name_lower if pain_occurrence ==1
+
+tab diagnosis_name_lower if complex_occurrence==1
+
+tab empi if crps_full_occurrence==1
+
+
+
+
+
+
+// Run the tab command and store results in a temporary matrix
+tempname result_matrix
+tab empi if crps_full_occurrence == 1, matcell(`result_matrix')
+
+// Convert the results to a matrix
+svmat `result_matrix'
+
+// Export the matrix to an Excel file
+putexcel A1 = matrix(result_matrix) using "output.xlsx", replace
+
+drop if crps_full_occurrence!=1
+
+tab empi
+
+
+
+
+sort empi
+
+// Create a variable that counts observations within each empi
+egen count_per_empi = group(empi)
+
+// Display the results
+list empi var1 count_per_empi
+
+tab count_per_empi
+
+sort empi
+
+// Create a variable that counts within each empi, starting from 1
+by empi: gen count_within_empi = _n
+
+// Display the results
+tab count_within_empi
+
+keep if count_within_empi ==1
+
+tab empi // n=2312 left
+
+
+export excel using "Dia_data_aggregate.xlsx", firstrow(variables) replace
+
+clear
+
+
+
+
+
+
+// Rfv data
+// do file to filter out pateients treated by ICAN
+
+format empi %12.0f
+
+// do file to filter out patients who have crps mentioned
+
+gen provider_lower = lower(provider)
+gen eberlin_occurrence = strpos(provider_lower, "eberlin")
+gen heng_occurrence = strpos(provider_lower, "heng")
+gen heng_marilyn_occurrence = strpos(provider_lower, "heng, marilyn")
+gen valerio_occurrence = strpos(provider_lower, "valerio")
+gen hao_david_occurrence = strpos(provider_lower, "hao, david")
+
+
+tab eberlin_occurrence // 624
+tab heng_marilyn_occurrence // 37
+tab valerio_occurrence // 89
+tab hao_david_occurrence // 49
+
+tab empi if eberlin_occurrence==1
+tab empi if heng_marilyn_occurrence==1
+tab empi if valerio_occurrence==1
+tab empi if hao_david_occurrence==1
+
+gen include =0
+replace include=1 if eberlin_occurrence==1
+replace include=1 if heng_marilyn_occurrence==1
+replace include=1 if valerio_occurrence==1
+replace include=1 if hao_david_occurrence==1
+
+tab include
+
+drop if include !=1
+
+sort empi
+
+// Create a variable that counts observations within each empi
+egen count_per_empi = group(empi)
+
+
+tab count_per_empi
+
+sort empi
+
+// Create a variable that counts within each empi, starting from 1
+by empi: gen count_within_empi = _n
+
+// Display the results
+tab count_within_empi
+
+keep if count_within_empi ==1
+
+tab empi // n=136 left
+
+
+export excel using "Rfv_data_aggregate.xlsx", firstrow(variables) replace
+
+clear
+
+
+
+
+
+
+
+// Prv data
+// do file to filter out pateients treated by ICAN
+
+format empi %12.0f
+
+// do file to filter out patients who have crps mentioned
+
+gen provider_lower = lower(provider_name)
+gen eberlin_occurrence = strpos(provider_lower, "eberlin")
+gen heng_occurrence = strpos(provider_lower, "heng")
+gen heng_marilyn_occurrence = strpos(provider_lower, "heng, marilyn")
+gen valerio_occurrence = strpos(provider_lower, "valerio")
+gen hao_david_occurrence = strpos(provider_lower, "hao, david")
+
+
+tab eberlin_occurrence // 89
+tab heng_marilyn_occurrence // 28
+tab valerio_occurrence // 8
+tab hao_david_occurrence // 10
+
+tab empi if eberlin_occurrence==1
+tab empi if heng_marilyn_occurrence==1
+tab empi if valerio_occurrence==1
+tab empi if hao_david_occurrence==1
+
+gen include =0
+replace include=1 if eberlin_occurrence==1
+replace include=1 if heng_marilyn_occurrence==1
+replace include=1 if valerio_occurrence==1
+replace include=1 if hao_david_occurrence==1
+
+tab include
+
+drop if include !=1
+
+sort empi
+
+// Create a variable that counts observations within each empi
+egen count_per_empi = group(empi)
+
+tab count_per_empi
+
+sort empi
+
+// Create a variable that counts within each empi, starting from 1
+by empi: gen count_within_empi = _n
+
+// Display the results
+tab count_within_empi
+
+keep if count_within_empi ==1
+
+tab empi // n=119 left
+
+
+export excel using "Prv_data_aggregate.xlsx", firstrow(variables) replace
+
+
+
+
+
+
+
+///import Dia_data_aggregate
+
+format empi %12.0f
+format epic_pmrn %20.0f
+format epic_pmrn %20s
+format epic_pmrn %20.0g
+
+merge 1:1 empi using "Rfv_data_aggregate.dta", force
+rename _merge merge_dia_rfv
+
+merge 1:1 empi using "Prv_data_aggregate.dta", force
+rename _merge merge_dia_prv
+
+tab merge_dia_rfv
+tab merge_dia_prv
+
+tab merge_dia_prv merge_dia_rfv
+
+gen inclusion_rfv =0
+gen inclusion_prv =0
+replace inclusion_rfv =1 if merge_dia_rfv ==3
+replace inclusion_prv =1 if merge_dia_prv ==3
+
+tab inclusion_rfv
+tab inclusion_prv
+gen inclusion =0
+replace inclusion =1 if inclusion_rfv==1
+replace inclusion =1 if inclusion_prv==1
+tab inclusion
+
+list empi if inclusion==1
+tab empi if inclusion==1
+tab epic_pmrn if inclusion==1
+
+
+
+// Display the table again
+tab epic_pmrn if inclusion == 1
+
+tab inclusion_rfv inclusion_prv
+
+
+export excel using "inclusion_dia_prv_rfv.xlsx", firstrow(variables) replace
+
+
+
+
+
+
+//Prg data
+
+
+// Set the display format to show full numbers
+format empi %12.0f
+
+
+gen report_lower = lower(report_text100004804)
+gen crps_occurrence = strpos(report_lower, "crps")
+gen crps_full_occurrence = strpos(report_lower, "complex regional pain syndrome")
+gen complex_occurrence = strpos(report_lower, "complex")
+gen sudeck_occurrence = strpos(report_lower, "sudeck ")
+gen rsd_full_occurrence = strpos(report_lower, "reflex sympathetic dystrophy")
+
+
+sort empi
+// Create a variable that counts observations within each empi
+egen count_per_empi = group(empi)
+tab count_per_empi
+sort empi
+// Create a variable that counts within each empi, starting from 1
+by empi: gen count_within_empi = _n
+// Display the results
+tab count_within_empi // 2693
+
+tab empi if crps_occurrence!=0
+tab empi if crps_full_occurrence!=0
+tab empi if sudeck_occurrence!=0
+tab empi if rsd_occurrence!=0
+tab empi if count_per_empi!=0
+
+
+drop crps_inc
+gen crps_inc =0
+replace crps_inc=1 if crps_full_occurrence!=0
+replace crps_inc=1 if rsd_full_occurrence!=0
+replace crps_inc=1 if sudeck_occurrence!=0
+
+tab crps_inc // 
+ 
+
+bysort empi (count_per_empi): egen any_crps_inc = max(crps_inc)
+
+tab empi if any_crps_inc == 1
+
+bysort empi: tab empi if crps_inc==1
+
+
+keep if crps_inc==1
+
+
+tab empi // n=710 left
+
+format epic_pmrn %12.0f
+
+export excel using "Prg_data_aggregate.xlsx", firstrow(variables) replace
+
+
+
+
+
+
+
+
+
+
+
+
+//Vis data --> repeat this for Prg
+
+
+// Set the display format to show full numbers
+format empi %12.0f
+
+
+gen report_lower = lower(report_text100004804)
+gen crps_occurrence = strpos(report_lower, "crps")
+gen crps_full_occurrence = strpos(report_lower, "complex regional pain syndrome ")
+gen pain_occurrence = strpos(report_lower, "pain")
+gen complex_occurrence = strpos(report_lower, "complex")
+gen sudeck_occurrence = strpos(report_lower, "sudeck ")
+gen rsd_full_occurrence = strpos(report_lower, "regional sensitive dysphoria ")
+
+tab crps_occurrence //194,797 
+tab crps_full_occurrence // too many
+tab complex_occurrence // too many
+tab sudeck_occurrence //0
+tab rsd_full_occurrence //0
+
+
+
+sort empi
+// Create a variable that counts observations within each empi
+egen count_per_empi = group(empi)
+tab count_per_empi
+sort empi
+// Create a variable that counts within each empi, starting from 1
+by empi: gen count_within_empi = _n
+// Display the results
+tab count_within_empi
+
+gen crps_inc = 0 
+replace crps_inc=1 if crps_occurrence!=0
+replace crps_inc=1 if crps_full_occurrence!=0
+
+tab crps_inc
+
+tab empi if crps_inc==1 & count_within_empi ==1 // 742
+
+
+
+// Sort the data by count_per_empi
+sort count_per_empi
+
+// Keep only the observations where crps_inc == 1 within each count_per_empi group
+by count_per_empi: keep if crps_inc == 1
+
+tab empi if count_within_empi==1
+tab count_per_empi
+
+
+tab empi
+
+keep if crps_inc==1 & count_within_empi ==1 // 710
+
+
+// Keep only the observations where EMPI is in the specified list
+tab empi if inlist(empi, `empi') & crps_inc == 1 & count_within_empi == 1
+
+egen unique_empi_list = group(empi) if crps_inc == 1 & count_within_empi == 1
+
+tab unique_empi_list
+
+tab empi // n=710 left
+
+format epic_pmrn %12.0f
+
+export excel using "Prg_data_aggregate.xlsx", firstrow(variables) replace
+
+
+
+
+
+
+//// merge prg and vis
+
+merge 1:1 empi using "Prg_data_filtered.dta", force
+
+tab _merge
+rename _merge _merge_prg_vis
+
+merge 1:1 empi using "Prv_data_aggregate.dta", force
+
+tab _merge
+rename _merge _merge_prg_vis_prv
+
+merge 1:1 empi using "Rfv_data_aggregate.dta", force
+
+tab _merge
+rename _merge _merge_prg_vis_prv_rfv
+
+
+tab include
+keep if include==1
+
+
+
+
+
+
+
+
+
+
+
+//// merge prg and vis
+
+merge 1:1 empi using "Vis_data_aggregate_unique_empi.dta", force
+
+tab _merge
+rename _merge _merge_prg_vis
+
+merge 1:1 empi using "Prv_data_aggregate.dta", force
+
+tab _merge
+rename _merge _merge_prg_vis_prv
+
+merge 1:1 empi using "Rfv_data_aggregate.dta", force
+
+tab _merge
+rename _merge _merge_prg_vis_prv_rfv
+
+
+tab include
+keep if include==1
+
+
+
+////
+drop  in_empi_list
+
+// Create a new variable indicating whether empi is in the specified list
+gen in_empi_list = inlist(empi, 100070720, 100130263, 100131295, 100133713, 100157058, 100182506, 100238531, 100274757, 100328480, 100387130, 100446094, 100520551, 100580552, 100636471, 100655810, 100658947, 100771551, 100922635, 100968636, 101180506, 101257268, 101307206, 101390856, 101430037, 101530203, 101562083, 101673852, 101744930, 101905417, 102051974, 102317169, 102361076, 102369001, 102437014, 102702317, 102772991, 102803628, 102864697, 102944401, 103215367, 103242774, 103328832, 103425438, 103562337, 103896744, 103909406, 104052078, 104100363, 104306632, 104486670, 104529908, 104572830, 104915343, 105019665, 105373157, 105393410, 105437180, 105504945, 105538918, 105901316, 105934968, 106314214, 106338342, 106431016, 106579200, 106582391, 106656482, 106673503, 106698082, 106728972, 106818523, 106913863, 106943753, 106970699, 107032790, 107084814, 107120016, 107158811, 107286897, 107314056, 107489112, 107645949, 107807364, 108900138, 108946499, 108998648, 109124992, 109455224, 109621887, 109730656, 110772715, 110974482, 111056941, 111085625, 111132793, 111148707, 111230349, 111262391, 111483947, 111490183, 111885947, 112428842, 112461660, 113075545, 113080588, 113105278, 113167159, 113551432, 113670538, 113765942, 114130958, 114203946, 115143875, 115179821, 115266018, 115369057, 115450842, 115686923, 116322414, 100023609, 100114317, 100264587, 100520070, 100530312, 100642086, 101275625, 101718763, 101876605, 102784147, 103110827, 103286428, 103931509, 104307525, 104573929, 104947367, 105067230, 105074915, 105342896, 106629700, 106742219, 107100216, 107200882, 107374855, 108296450, 109888648, 109900170, 112811937, 114038001, 115913768)
+
+// Display the result
+list empi in_empi_list
+tab in_empi_list
+
+keep if in_empi_list==1
+
+
+
+// Assuming your data is sorted by empi
+sort empi
+
+
+
+// Create a new variable combining empi and the unique value
+gen empi_unique = empi + "_" + unique_value
+gen empi_unique = empi + "_" + string(unique_value)
+gen empi_unique = empi + "_" + string(unique_value)
+
+gen empi_unique = string(empi) + "_" + string(unique_value)
+
+
+
+
+
+
+
+
+
+
+
+
+**** this is it *****
+
+tostring empi, gen(empi_string)
+
+sort empi
+// Create a variable that counts within each empi, starting from 1
+by empi: gen empi_count= _n
+// Display the results
+tab count_per_empi
+
+tostring empi_count, gen(empi_count_string)
+
+
+gen empi_unique_string = empi_string + "_" + empi_count_string
+
+
+
+
+
+
+
+
+///
+merge 1:1 empi_unique_string using "Vis_data_filtered.dta", force
+
+sort empi
+
+
+// Assuming your date variable is stored as the number of seconds since January 1, 1960
+format report_date_time %tcDD-mon-CCYY_HH:MM:SS
+
+// Now, the variable will be displayed in the specified date format
+
+
+
+// Assuming your date variable is stored as a string
+gen your_numeric_date_variable = clock(report_date_time, "MDYhms")
+
+// Now, format the numeric variable
+format your_numeric_date_variable %tcDD-mon-CCYY_HH:MM:SS
+
+// Drop the original string variable if you no longer need it
+
+order your_numeric_date_variable, after(report_date_time)
+drop report_date_time
+rename your_numeric_date_variable report_date_time
+
+sort empi report_date_time
+
+tab count_per_empi
+
+tab count_per_empi_new
+order count_per_empi_new, before(empi)
+
+////
+
+egen count_per_empi_new = group(empi)
+tab count_per_empi_new
+
+// Create a variable that counts within each empi, starting from 1
+by empi: gen count_within_empi_new = _n
+// Display the results
+tab count_within_empi_new
+
+order count_within_empi_new, before(empi)
+drop count_per_empi
+
+
+export excel using "Reports_crps_ican.xlsx", firstrow(variables) replace
+
+
+
+
+
+// file too large so have to cut in 3
+
+drop if count_per_empi_new < 61
+export excel using "Reports_crps_61-91.xlsx", firstrow(variables) replace
+
+
+
