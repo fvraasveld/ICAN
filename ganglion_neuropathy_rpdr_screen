@@ -1,0 +1,616 @@
+# ============================================================================ #
+# MASTER GANGLION STUDY ANALYSIS SCRIPT ----
+# Comprehensive analysis with 4 scenarios, intermediate files, and final databases
+# Based on protocol: "Radiographic and Clinical Correlation of Nerve Compression 
+# in Ganglion Cysts of the Upper Extremity"
+# ============================================================================ #
+
+library(dplyr)
+library(readr)
+library(lubridate)
+library(stringr)
+library(writexl)
+
+# ============================================================================ #
+# SETUP: Create comprehensive folder structure ----
+# ============================================================================ #
+
+cat("=== MASTER GANGLION STUDY ANALYSIS ===\n")
+cat("Setting up folder structure...\n\n")
+
+# Main directory (adjust as needed)
+setwd("/Users/floris/Partners HealthCare Dropbox/Floris Raasveld/ICAN research/k. Neuropathy - Compression/Ganglion Wrist Compression/RPDR")
+
+# Create organized folder structure
+dir.create("results", showWarnings = FALSE)
+dir.create("results/01_intermediate_steps", showWarnings = FALSE)
+dir.create("results/02_scenario_analyses", showWarnings = FALSE)
+dir.create("results/03_final_databases", showWarnings = FALSE)
+dir.create("results/04_quality_control", showWarnings = FALSE)
+
+# ============================================================================ #
+# STEP 1: Load and validate all datasets ----
+# ============================================================================ #
+
+cat("=== STEP 1: LOADING AND VALIDATING DATASETS ===\n")
+
+# Load all RPDR datasets
+procedures <- read_delim("KE089_20250507_114638_Prc.txt", delim = "|", col_types = cols(.default = "c"))
+diagnoses <- read_delim("KE089_20250507_114638_Dia.txt", delim = "|", col_types = cols(.default = "c"))
+operation_notes <- read_delim("Opn.txt", delim = "|", col_types = cols(.default = "c"))
+radiology_reports <- read_delim("Rad.txt", delim = "|", col_types = cols(.default = "c"))
+demographics <- read_delim("KE089_20250507_114638_Dem.txt", delim = "|", col_types = cols(.default = "c"))
+
+# Clean column names
+colnames(procedures) <- trimws(colnames(procedures))
+colnames(diagnoses) <- trimws(colnames(diagnoses))
+colnames(operation_notes) <- trimws(colnames(operation_notes))
+colnames(radiology_reports) <- trimws(colnames(radiology_reports))
+colnames(demographics) <- trimws(colnames(demographics))
+
+# Initial validation
+total_procedures <- nrow(procedures)
+total_unique_patients <- length(unique(procedures$EMPI))
+
+cat("DATASET VALIDATION:\n")
+cat("- Total procedures:", total_procedures, "\n")
+cat("- Unique patients:", total_unique_patients, "\n")
+cat("- Operation notes:", nrow(operation_notes), "\n")
+cat("- Radiology reports:", nrow(radiology_reports), "\n")
+cat("- Demographics records:", nrow(demographics), "\n\n")
+
+# Save initial dataset summary
+initial_summary <- data.frame(
+  dataset = c("Procedures", "Diagnoses", "Operation_Notes", "Radiology_Reports", "Demographics"),
+  n_records = c(nrow(procedures), nrow(diagnoses), nrow(operation_notes), 
+                nrow(radiology_reports), nrow(demographics)),
+  n_unique_patients = c(length(unique(procedures$EMPI)), length(unique(diagnoses$EMPI)),
+                        length(unique(operation_notes$EMPI)), length(unique(radiology_reports$EMPI)),
+                        length(unique(demographics$EMPI)))
+)
+
+write_csv(initial_summary, "results/01_intermediate_steps/00_initial_dataset_summary.csv")
+
+# ============================================================================ #
+# STEP 2: Master screening function for all scenarios ----
+# ============================================================================ #
+
+master_screening_function <- function(scenario_name, include_aspirations = TRUE, time_period = "all") {
+  
+  cat(paste("Processing scenario:", scenario_name, "\n"))
+  
+  # Initialize screening log
+  screening_log <- data.frame(
+    Step = character(), Description = character(), N_Patients = numeric(),
+    N_Records = numeric(), Exclusion_Reason = character(), stringsAsFactors = FALSE
+  )
+  
+  # Step 1: Baseline
+  screening_log <- rbind(screening_log, data.frame(
+    Step = "1", Description = "Initial RPDR dataset", 
+    N_Patients = total_unique_patients, N_Records = total_procedures,
+    Exclusion_Reason = "Baseline - no exclusions"
+  ))
+  
+  # Step 2: CPT Code Filtering
+  ganglion_cpt_codes <- if(include_aspirations) c("20612", "25111", "25112") else c("25111", "25112")
+  
+  ganglion_procedures <- procedures %>%
+    filter(Code_Type == "CPT" & Code %in% ganglion_cpt_codes) %>%
+    mutate(Date = mdy(Date))
+  
+  # Apply time filter
+  if(time_period == "2020-2025") {
+    ganglion_procedures <- ganglion_procedures %>%
+      filter(Date >= as.Date("2020-01-01") & Date <= as.Date("2025-12-31"))
+  }
+  
+  ganglion_procedures <- ganglion_procedures %>% arrange(EMPI, Date)
+  patients_with_ganglion_cpt <- unique(ganglion_procedures$EMPI)
+  
+  # Log CPT filtering
+  cpt_desc <- paste0("Ganglion CPT codes (", paste(ganglion_cpt_codes, collapse = ", "), ") - ", 
+                     ifelse(time_period == "2020-2025", "2020-2025", "all years"))
+  
+  screening_log <- rbind(screening_log, data.frame(
+    Step = "2", Description = cpt_desc, 
+    N_Patients = length(patients_with_ganglion_cpt), N_Records = nrow(ganglion_procedures),
+    Exclusion_Reason = "None - has ganglion CPT"
+  ))
+  
+  # Step 3: Operation Notes Verification
+  ganglion_op_notes <- operation_notes %>% filter(EMPI %in% patients_with_ganglion_cpt)
+  
+  # Find operation note text column
+  op_text_col <- colnames(ganglion_op_notes)[sapply(ganglion_op_notes, function(x) {
+    if(is.character(x)) max(nchar(x, keepNA = FALSE), na.rm = TRUE) > 500 else FALSE
+  })][1]
+  
+  wrist_keywords <- c("wrist", "dorsal", "volar", "carpal", "scapholunate", 
+                      "radiocarpal", "midcarpal", "hand", "ganglion")
+  wrist_pattern <- paste(wrist_keywords, collapse = "|")
+  
+  wrist_ganglion_notes <- ganglion_op_notes %>%
+    filter(str_detect(str_to_lower(!!sym(op_text_col)), str_to_lower(wrist_pattern)))
+  
+  patients_with_wrist_op_notes <- unique(wrist_ganglion_notes$EMPI)
+  
+  # Log operation notes filtering
+  screening_log <- rbind(screening_log, data.frame(
+    Step = "3", Description = "Wrist ganglion operation notes", 
+    N_Patients = length(patients_with_wrist_op_notes), N_Records = nrow(wrist_ganglion_notes),
+    Exclusion_Reason = "None - has wrist operation notes"
+  ))
+  
+  # Step 4: Preoperative Imaging
+  patient_radiology <- radiology_reports %>%
+    filter(EMPI %in% patients_with_wrist_op_notes) %>%
+    mutate(Report_Date_Time = mdy_hms(Report_Date_Time))
+  
+  # Find radiology text column
+  rad_text_col <- colnames(patient_radiology)[str_detect(colnames(patient_radiology), "^Report_Text")][1]
+  if(is.na(rad_text_col)) {
+    rad_text_col <- colnames(patient_radiology)[sapply(patient_radiology, function(x) {
+      if(is.character(x)) max(nchar(x, keepNA = FALSE), na.rm = TRUE) > 100 else FALSE
+    })][1]
+  }
+  
+  # Filter for relevant imaging
+  imaging_keywords <- c("wrist", "hand", "forearm", "carpal", "ganglion", "cyst", 
+                        "MRI", "MR", "ultrasound", "US", "sonogram")
+  imaging_pattern <- paste(imaging_keywords, collapse = "|")
+  
+  relevant_imaging <- patient_radiology %>%
+    filter(str_detect(str_to_lower(!!sym(rad_text_col)), str_to_lower(imaging_pattern))) %>%
+    filter(str_detect(str_to_lower(Report_Description), "wrist|hand|forearm|upper.*ext") |
+             str_detect(str_to_lower(!!sym(rad_text_col)), "wrist|hand|ganglion|cyst"))
+  
+  # Temporal analysis - preoperative imaging only
+  procedure_dates <- ganglion_procedures %>%
+    filter(EMPI %in% patients_with_wrist_op_notes) %>%
+    group_by(EMPI) %>%
+    summarise(
+      first_ganglion_procedure = min(Date, na.rm = TRUE),
+      last_ganglion_procedure = max(Date, na.rm = TRUE),
+      n_ganglion_procedures = n(),
+      all_procedure_dates = paste(Date, collapse = "; "),
+      all_procedure_codes = paste(Code, collapse = "; "),
+      all_providers = paste(unique(Provider), collapse = "; "),
+      .groups = "drop"
+    )
+  
+  imaging_temporal <- relevant_imaging %>%
+    left_join(procedure_dates, by = "EMPI") %>%
+    mutate(
+      imaging_date = as.Date(Report_Date_Time),
+      days_before_first_procedure = as.numeric(first_ganglion_procedure - imaging_date),
+      is_preoperative = (days_before_first_procedure >= 0 & days_before_first_procedure <= 730)
+    )
+  
+  preoperative_imaging <- imaging_temporal %>% filter(is_preoperative == TRUE)
+  patients_with_preop_imaging <- unique(preoperative_imaging$EMPI)
+  
+  # Log preoperative imaging
+  screening_log <- rbind(screening_log, data.frame(
+    Step = "4", Description = "Preoperative wrist imaging", 
+    N_Patients = length(patients_with_preop_imaging), N_Records = nrow(preoperative_imaging),
+    Exclusion_Reason = "None - has preoperative imaging"
+  ))
+  
+  # Final cohort
+  screening_log <- rbind(screening_log, data.frame(
+    Step = "5", Description = "FINAL STUDY COHORT", 
+    N_Patients = length(patients_with_preop_imaging), N_Records = length(patients_with_preop_imaging),
+    Exclusion_Reason = "None - meets all inclusion criteria"
+  ))
+  
+  # Save intermediate files for this scenario
+  scenario_folder <- paste0("results/02_scenario_analyses/", scenario_name)
+  dir.create(scenario_folder, showWarnings = FALSE, recursive = TRUE)
+  
+  write_csv(ganglion_procedures, paste0(scenario_folder, "/01_ganglion_procedures.csv"))
+  write_csv(wrist_ganglion_notes %>% select(EMPI, Report_Number, Report_Date_Time), 
+            paste0(scenario_folder, "/02_operation_notes_summary.csv"))
+  write_csv(preoperative_imaging, paste0(scenario_folder, "/03_preoperative_imaging.csv"))
+  write_csv(screening_log, paste0(scenario_folder, "/04_patient_flowchart.csv"))
+  
+  return(list(
+    scenario_name = scenario_name,
+    flowchart = screening_log,
+    final_empis = patients_with_preop_imaging,
+    procedures = ganglion_procedures,
+    preop_imaging = preoperative_imaging,
+    procedure_dates = procedure_dates,
+    op_notes = wrist_ganglion_notes,
+    rad_text_col = rad_text_col,
+    op_text_col = op_text_col
+  ))
+}
+
+# ============================================================================ #
+# STEP 3: Process all 4 scenarios ----
+# ============================================================================ #
+
+cat("=== STEP 3: PROCESSING ALL 4 SCENARIOS ===\n")
+
+# Define scenarios
+scenarios <- list(
+  list(name = "All_Times_All_Procedures", aspirations = TRUE, period = "all"),
+  list(name = "All_Times_Excision_Only", aspirations = FALSE, period = "all"),
+  list(name = "2020_2025_All_Procedures", aspirations = TRUE, period = "2020-2025"),
+  list(name = "2020_2025_Excision_Only", aspirations = FALSE, period = "2020-2025")
+)
+
+# Process each scenario
+scenario_results <- list()
+for(i in 1:length(scenarios)) {
+  s <- scenarios[[i]]
+  scenario_results[[s$name]] <- master_screening_function(s$name, s$aspirations, s$period)
+  cat("✓ Completed:", s$name, "- Final cohort:", length(scenario_results[[s$name]]$final_empis), "patients\n")
+}
+
+# ============================================================================ #
+# STEP 4: Text extraction and analysis functions ----
+# ============================================================================ #
+
+extract_comprehensive_findings <- function(scenario_result) {
+  
+  # Extract detailed radiology findings
+  rad_findings <- scenario_result$preop_imaging %>%
+    mutate(
+      rad_text_col_name = colnames(.)[str_detect(colnames(.), "^Report_Text")][1]
+    ) %>%
+    rowwise() %>%
+    mutate(
+      rad_text = ifelse(!is.na(rad_text_col_name), get(rad_text_col_name), ""),
+      modality = case_when(
+        str_detect(str_to_upper(Report_Description), "MR") ~ "MRI",
+        str_detect(str_to_upper(Report_Description), "US|ULTRASOUND") ~ "Ultrasound",
+        TRUE ~ "Other"
+      ),
+      # Clinical findings
+      mentions_ganglion = ifelse(str_detect(str_to_lower(rad_text), "ganglion"), "Yes", "No"),
+      mentions_cyst = ifelse(str_detect(str_to_lower(rad_text), "cyst"), "Yes", "No"),
+      mentions_pain = ifelse(str_detect(str_to_lower(rad_text), "pain|painful"), "Yes", "No"),
+      mentions_nerve = ifelse(str_detect(str_to_lower(rad_text), "nerve"), "Yes", "No"),
+      mentions_compression = ifelse(str_detect(str_to_lower(rad_text), "compression|compress"), "Yes", "No"),
+      mentions_dorsal = ifelse(str_detect(str_to_lower(rad_text), "dorsal"), "Yes", "No"),
+      mentions_volar = ifelse(str_detect(str_to_lower(rad_text), "volar"), "Yes", "No"),
+      # Size measurements
+      size_measurement = str_extract(rad_text, "\\d+\\.?\\d*\\s*[x×]\\s*\\d+\\.?\\d*\\s*[x×]?\\s*\\d*\\.?\\d*\\s*(cm|mm)"),
+      # Text excerpts for manual review
+      ganglion_excerpt = str_extract(rad_text, ".{0,200}[Gg]anglion.{0,200}"),
+      cyst_excerpt = str_extract(rad_text, ".{0,200}[Cc]yst.{0,200}"),
+      nerve_excerpt = str_extract(rad_text, ".{0,200}[Nn]erve.{0,200}"),
+      pain_excerpt = str_extract(rad_text, ".{0,200}[Pp]ain.{0,200}")
+    ) %>%
+    ungroup() %>%
+    select(EMPI, Report_Number, imaging_date, modality, Report_Description,
+           mentions_ganglion, mentions_cyst, mentions_pain, mentions_nerve, 
+           mentions_compression, mentions_dorsal, mentions_volar, size_measurement,
+           ganglion_excerpt, cyst_excerpt, nerve_excerpt, pain_excerpt, 
+           days_before_first_procedure)
+  
+  return(rad_findings)
+}
+
+# ============================================================================ #
+# STEP 5: Create LONG format datasets ----
+# ============================================================================ #
+
+create_master_long_format <- function(scenario_result) {
+  
+  rad_findings <- extract_comprehensive_findings(scenario_result)
+  
+  # Procedures with sequence
+  procedures_long <- scenario_result$procedures %>%
+    mutate(EMPI = as.character(EMPI)) %>%
+    filter(EMPI %in% as.character(scenario_result$final_empis)) %>%
+    mutate(
+      procedure_type = case_when(
+        Code == "20612" ~ "Aspiration",
+        Code == "25111" ~ "Primary excision", 
+        Code == "25112" ~ "Recurrent excision",
+        TRUE ~ "Other"
+      )
+    ) %>%
+    arrange(EMPI, Date) %>%
+    group_by(EMPI) %>%
+    mutate(sequence_number = row_number()) %>%
+    ungroup() %>%
+    mutate(
+      record_type = "PROCEDURE",
+      event_date = Date
+    ) %>%
+    select(EMPI, record_type, sequence_number, event_date, procedure_type, 
+           Provider, Hospital, Code, Procedure_Name)
+  
+  # Imaging with sequence and findings
+  imaging_long <- rad_findings %>%
+    arrange(EMPI, imaging_date) %>%
+    group_by(EMPI) %>%
+    mutate(sequence_number = row_number()) %>%
+    ungroup() %>%
+    mutate(
+      record_type = "IMAGING",
+      event_date = as.Date(imaging_date)
+    ) %>%
+    select(EMPI, record_type, sequence_number, event_date, modality, 
+           Report_Description, mentions_ganglion, mentions_cyst, mentions_pain,
+           mentions_nerve, mentions_compression, mentions_dorsal, mentions_volar,
+           size_measurement, ganglion_excerpt, nerve_excerpt, days_before_first_procedure)
+  
+  # Combine with demographics
+  long_format <- bind_rows(procedures_long, imaging_long) %>%
+    arrange(EMPI, event_date, record_type) %>%
+    left_join(demographics %>% mutate(EMPI = as.character(EMPI)) %>% 
+                select(EMPI, Date_of_Birth, Gender_Legal_Sex, Race1, Age), by = "EMPI") %>%
+    mutate(
+      age_at_event = as.numeric(difftime(event_date, mdy(Date_of_Birth), units = "days")) / 365.25
+    ) %>%
+    select(EMPI, Gender_Legal_Sex, Race1, Age, record_type, sequence_number, 
+           event_date, age_at_event, everything(), -Date_of_Birth)
+  
+  return(long_format)
+}
+
+# ============================================================================ #
+# STEP 6: Create WIDE format datasets ----
+# ============================================================================ #
+
+create_master_wide_format <- function(scenario_result) {
+  
+  rad_findings <- extract_comprehensive_findings(scenario_result)
+  
+  # Patient-level procedure summary
+  patient_procedures <- scenario_result$procedures %>%
+    mutate(EMPI = as.character(EMPI)) %>%
+    filter(EMPI %in% as.character(scenario_result$final_empis)) %>%
+    group_by(EMPI) %>%
+    summarise(
+      total_procedures = n(),
+      first_procedure_date = min(Date),
+      last_procedure_date = max(Date),
+      has_aspiration = ifelse(any(Code == "20612"), "Yes", "No"),
+      has_excision = ifelse(any(Code %in% c("25111", "25112")), "Yes", "No"),
+      primary_surgeon = Provider[which.min(Date)],
+      all_surgeons = paste(unique(Provider), collapse = "; "),
+      all_procedure_dates = paste(Date, collapse = "; "),
+      all_procedure_codes = paste(Code, collapse = "; "),
+      .groups = "drop"
+    )
+  
+  # Comprehensive imaging summary
+  imaging_summary <- rad_findings %>%
+    group_by(EMPI) %>%
+    summarise(
+      total_imaging_studies = n(),
+      n_mri = sum(modality == "MRI"),
+      n_ultrasound = sum(modality == "Ultrasound"),
+      has_mri = ifelse(any(modality == "MRI"), "Yes", "No"),
+      has_ultrasound = ifelse(any(modality == "Ultrasound"), "Yes", "No"),
+      any_ganglion_mention = ifelse(any(mentions_ganglion == "Yes"), "Yes", "No"),
+      any_nerve_mention = ifelse(any(mentions_nerve == "Yes"), "Yes", "No"),
+      any_pain_mention = ifelse(any(mentions_pain == "Yes"), "Yes", "No"),
+      any_compression_mention = ifelse(any(mentions_compression == "Yes"), "Yes", "No"),
+      all_imaging_dates = paste(imaging_date, collapse = "; "),
+      all_modalities = paste(modality, collapse = "; "),
+      .groups = "drop"
+    )
+  
+  # Most recent imaging (key for correlation analysis)
+  most_recent_imaging <- rad_findings %>%
+    arrange(EMPI, desc(imaging_date)) %>%
+    group_by(EMPI) %>%
+    slice_head(n = 1) %>%
+    ungroup() %>%
+    select(EMPI, 
+           most_recent_imaging_date = imaging_date,
+           most_recent_modality = modality,
+           most_recent_mentions_ganglion = mentions_ganglion,
+           most_recent_mentions_cyst = mentions_cyst,
+           most_recent_mentions_nerve = mentions_nerve,
+           most_recent_mentions_compression = mentions_compression,
+           most_recent_mentions_pain = mentions_pain,
+           most_recent_size = size_measurement,
+           days_most_recent_to_surgery = days_before_first_procedure,
+           most_recent_ganglion_excerpt = ganglion_excerpt,
+           most_recent_nerve_excerpt = nerve_excerpt)
+  
+  # Final wide format with demographics first
+  wide_format <- demographics %>%
+    mutate(EMPI = as.character(EMPI)) %>%
+    filter(EMPI %in% as.character(scenario_result$final_empis)) %>%
+    select(EMPI, Gender_Legal_Sex, Race1, Age, Date_of_Birth) %>%
+    left_join(patient_procedures, by = "EMPI") %>%
+    left_join(imaging_summary, by = "EMPI") %>%
+    left_join(most_recent_imaging, by = "EMPI") %>%
+    mutate(
+      age_at_first_procedure = as.numeric(difftime(first_procedure_date, mdy(Date_of_Birth), units = "days")) / 365.25,
+      imaging_to_surgery_window = case_when(
+        days_most_recent_to_surgery <= 30 ~ "≤30 days",
+        days_most_recent_to_surgery <= 90 ~ "31-90 days", 
+        days_most_recent_to_surgery <= 180 ~ "91-180 days",
+        days_most_recent_to_surgery <= 365 ~ "181-365 days",
+        days_most_recent_to_surgery > 365 ~ ">1 year",
+        TRUE ~ "Unknown"
+      )
+    ) %>%
+    select(-Date_of_Birth) %>%
+    arrange(first_procedure_date)
+  
+  return(wide_format)
+}
+
+# ============================================================================ #
+# STEP 7: Generate final datasets for all scenarios ----
+# ============================================================================ #
+
+cat("\n=== STEP 7: GENERATING FINAL DATASETS ===\n")
+
+# Generate LONG formats
+long_datasets <- list()
+wide_datasets <- list()
+flowchart_datasets <- list()
+
+for(scenario_name in names(scenario_results)) {
+  cat("Processing", scenario_name, "...\n")
+  
+  # Create datasets
+  long_datasets[[scenario_name]] <- create_master_long_format(scenario_results[[scenario_name]])
+  wide_datasets[[scenario_name]] <- create_master_wide_format(scenario_results[[scenario_name]])
+  flowchart_datasets[[scenario_name]] <- scenario_results[[scenario_name]]$flowchart
+  
+  cat("✓", scenario_name, "- Wide format:", nrow(wide_datasets[[scenario_name]]), "patients\n")
+}
+
+# ============================================================================ #
+# STEP 8: Create summary statistics ----
+# ============================================================================ #
+
+cat("\n=== STEP 8: CREATING SUMMARY STATISTICS ===\n")
+
+# Overall summary across all scenarios
+overall_summary <- data.frame(
+  scenario = names(wide_datasets),
+  n_patients = sapply(wide_datasets, nrow),
+  n_with_mri = sapply(wide_datasets, function(x) sum(x$has_mri == "Yes", na.rm = TRUE)),
+  n_with_ultrasound = sapply(wide_datasets, function(x) sum(x$has_ultrasound == "Yes", na.rm = TRUE)),
+  n_nerve_mentions = sapply(wide_datasets, function(x) sum(x$any_nerve_mention == "Yes", na.rm = TRUE)),
+  n_pain_mentions = sapply(wide_datasets, function(x) sum(x$any_pain_mention == "Yes", na.rm = TRUE)),
+  mean_age = sapply(wide_datasets, function(x) round(mean(x$age_at_first_procedure, na.rm = TRUE), 1)),
+  pct_female = sapply(wide_datasets, function(x) round(mean(x$Gender_Legal_Sex == "Female", na.rm = TRUE) * 100, 1))
+)
+
+# Nerve compression analysis summary
+nerve_compression_summary <- data.frame(
+  scenario = names(wide_datasets),
+  total_patients = sapply(wide_datasets, nrow),
+  nerve_mentions = sapply(wide_datasets, function(x) sum(x$most_recent_mentions_nerve == "Yes", na.rm = TRUE)),
+  compression_mentions = sapply(wide_datasets, function(x) sum(x$most_recent_mentions_compression == "Yes", na.rm = TRUE)),
+  pain_mentions = sapply(wide_datasets, function(x) sum(x$most_recent_mentions_pain == "Yes", na.rm = TRUE)),
+  nerve_and_pain = sapply(wide_datasets, function(x) 
+    sum(x$most_recent_mentions_nerve == "Yes" & x$most_recent_mentions_pain == "Yes", na.rm = TRUE))
+) %>%
+  mutate(
+    pct_nerve = round(nerve_mentions / total_patients * 100, 1),
+    pct_compression = round(compression_mentions / total_patients * 100, 1),
+    pct_pain = round(pain_mentions / total_patients * 100, 1),
+    pct_nerve_and_pain = round(nerve_and_pain / total_patients * 100, 1)
+  )
+
+# Save summary statistics
+write_csv(overall_summary, "results/04_quality_control/overall_summary_statistics.csv")
+write_csv(nerve_compression_summary, "results/04_quality_control/nerve_compression_analysis.csv")
+
+# ============================================================================ #
+# STEP 9: Save final master databases ----
+# ============================================================================ #
+
+cat("\n=== STEP 9: SAVING FINAL MASTER DATABASES ===\n")
+
+# Save LONG format Excel (all scenarios)
+write_xlsx(long_datasets, "results/03_final_databases/MASTER_Ganglion_Study_LONG_Format.xlsx")
+
+# Save WIDE format Excel (all scenarios)
+write_xlsx(wide_datasets, "results/03_final_databases/MASTER_Ganglion_Study_WIDE_Format.xlsx")
+
+# Save Patient Flowcharts Excel (all scenarios)
+write_xlsx(flowchart_datasets, "results/03_final_databases/MASTER_Patient_Flowcharts.xlsx")
+
+# Save comprehensive analysis workbook
+comprehensive_analysis <- c(
+  wide_datasets,
+  list("Overall_Summary" = overall_summary,
+       "Nerve_Compression_Analysis" = nerve_compression_summary)
+)
+
+write_xlsx(comprehensive_analysis, "results/03_final_databases/MASTER_Comprehensive_Analysis.xlsx")
+
+# Save individual scenario CSV files for easy access
+for(scenario_name in names(wide_datasets)) {
+  write_csv(wide_datasets[[scenario_name]], 
+            paste0("results/03_final_databases/", scenario_name, "_wide_format.csv"))
+  write_csv(long_datasets[[scenario_name]], 
+            paste0("results/03_final_databases/", scenario_name, "_long_format.csv"))
+}
+
+# ============================================================================ #
+# STEP 10: Final validation and summary report ----
+# ============================================================================ #
+
+cat("\n=== STEP 10: FINAL VALIDATION AND SUMMARY ===\n")
+
+# Quality control checks
+qc_results <- data.frame(
+  scenario = names(wide_datasets),
+  patients_with_imaging = sapply(wide_datasets, function(x) sum(!is.na(x$most_recent_imaging_date))),
+  patients_with_procedures = sapply(wide_datasets, function(x) sum(!is.na(x$first_procedure_date))),
+  patients_missing_demographics = sapply(wide_datasets, function(x) sum(is.na(x$Gender_Legal_Sex))),
+  avg_days_imaging_to_surgery = sapply(wide_datasets, function(x) round(mean(x$days_most_recent_to_surgery, na.rm = TRUE)))
+)
+
+write_csv(qc_results, "results/04_quality_control/quality_control_results.csv")
+
+# Create final summary report
+cat("\n" , paste(rep("=", 80), collapse=""), "\n")
+cat("MASTER GANGLION STUDY ANALYSIS - FINAL SUMMARY\n")
+cat(paste(rep("=", 80), collapse=""), "\n\n")
+
+cat("SCENARIO RESULTS:\n")
+for(i in 1:nrow(overall_summary)) {
+  cat(sprintf("• %s: %d patients (%d MRI, %d US)\n", 
+              overall_summary$scenario[i], 
+              overall_summary$n_patients[i],
+              overall_summary$n_with_mri[i], 
+              overall_summary$n_with_ultrasound[i]))
+}
+
+cat("\nNERVE COMPRESSION FINDINGS:\n")
+for(i in 1:nrow(nerve_compression_summary)) {
+  cat(sprintf("• %s: %d/%d (%.1f%%) with nerve mentions, %d/%d (%.1f%%) with pain\n",
+              nerve_compression_summary$scenario[i],
+              nerve_compression_summary$nerve_mentions[i],
+              nerve_compression_summary$total_patients[i],
+              nerve_compression_summary$pct_nerve[i],
+              nerve_compression_summary$pain_mentions[i],
+              nerve_compression_summary$total_patients[i],
+              nerve_compression_summary$pct_pain[i]))
+}
+
+cat("\nFILES CREATED:\n")
+cat("✓ results/03_final_databases/MASTER_Ganglion_Study_LONG_Format.xlsx\n")
+cat("✓ results/03_final_databases/MASTER_Ganglion_Study_WIDE_Format.xlsx\n")
+cat("✓ results/03_final_databases/MASTER_Patient_Flowcharts.xlsx\n")
+cat("✓ results/03_final_databases/MASTER_Comprehensive_Analysis.xlsx\n")
+cat("✓ Individual CSV files for each scenario\n")
+cat("✓ Intermediate files in results/01_intermediate_steps/\n")
+cat("✓ Scenario analyses in results/02_scenario_analyses/\n")
+cat("✓ Quality control files in results/04_quality_control/\n")
+
+cat("\nFOLDER STRUCTURE:\n")
+cat("results/\n")
+cat("├── 01_intermediate_steps/     # Initial processing steps\n")
+cat("├── 02_scenario_analyses/      # Individual scenario details\n")
+cat("├── 03_final_databases/        # Master Excel files and CSVs\n")
+cat("└── 04_quality_control/        # Summary statistics and QC\n")
+
+cat("\nKEY FEATURES INCLUDED:\n")
+cat("• Complete patient flowcharts with exclusion tracking\n")
+cat("• Most recent preoperative imaging per patient\n")
+cat("• Comprehensive text extraction (ganglion, nerve, pain mentions)\n")
+cat("• Days between imaging and surgery calculations\n")
+cat("• Size measurements when available\n")
+cat("• Both LONG (timeline) and WIDE (patient-level) formats\n")
+cat("• All procedure types and all time periods\n")
+cat("• Demographics and clinical correlation variables\n")
+
+cat("\nREADY FOR ANALYSIS:\n")
+cat("The WIDE format datasets are optimized for correlation analysis between:\n")
+cat("- Imaging findings (nerve compression, ganglion size)\n")
+cat("- Clinical symptoms (pain mentions)\n")
+cat("- Patient demographics and surgical outcomes\n")
+
+cat("\n*** MASTER ANALYSIS COMPLETE ***\n")
+cat("Protocol: 'Radiographic and Clinical Correlation of Nerve Compression in Ganglion Cysts'\n")
+cat("Primary aim: Assess relationship between ganglion cyst proximity to PIN and wrist pain\n")
