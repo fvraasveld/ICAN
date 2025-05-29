@@ -1,0 +1,825 @@
+/*=======================================================================
+project:        TMR Central Sensitization Criteria Assessment
+Author:       	Floris Raasveld
+Dep.			MGH Hand & Arm / PRS
+--------------------------------------------------------------------------------------------------------------------------------
+Creation Date:  	03-04-2025
+Modification Date:	03-04-2025
+Data type:		Longitudinal
+Outcome: 		Pain score (0-10), count data   	
+=========================================================================*/
+
+/*** Objectives ***
+
+0. Program set up
+1. Clean data
+2. generate time variables
+3. generate time frames
+4. drop variables based on objective of study
+5. set to panel data (long)
+
+convert to panel data (longitudinal)
+ conduct comparative test for pain data
+ conduct regressions for explanatory variables
+ conduct vizualisation fit for
+
+*/
+
+
+
+
+
+
+
+clear all
+capture log close
+set more off
+*version 16.0
+
+/*=========================================================================
+ 0: Program set up
+=========================================================================*/
+
+
+*---------------------0.1: change directory
+
+pwd
+cd "/Users/mrh77/Downloads"
+pwd
+
+
+*---------------------0.2: Import excel and drop garbage variables
+
+* 1. cleaning database
+
+
+
+
+
+//renaming variables
+rename alcohol_use alcoholism
+rename smoking_or_nicotine smoking
+rename psych_comorbs___1 depression
+rename psych_comorbs___2 anxiety
+rename psych_comorbs___3 pers_disord
+rename psych_comorbs___4 ptsd
+rename amp1_primary_etiology amp1_indication
+rename amp1_pain_mgmt_prevt___1 type_surg_1
+rename amp1_pain_mgmt_prevt___2 type_surg_2
+rename amp1_pain_mgmt_prevt___3 type_surg_3
+rename amp1_pain_mgmt_prevt___4 type_surg_4
+rename amp1_pain_mgmt_prevt___5 type_surg_5
+rename amp1_pain_mgmt_prevt___6 type_surg_6
+rename type_surg_1 type_surg_tmr
+rename type_surg_2 type_surg_rpni
+rename type_surg_3 type_surg_other
+rename type_surg_4 type_surg_neur_exc
+rename type_surg_5 type_surg_flap_free
+rename type_surg_6 type_surg_flap_ped
+rename amp1_pain_mgmt_prevt_other___1 nerve_surg_tmr_radial
+rename amp1_pain_mgmt_prevt_v_2 nerve_surg_tmr_radial_superf
+rename amp1_pain_mgmt_prevt_other___2 nerve_surg_tmr_median
+rename amp1_pain_mgmt_prevt_other___3 nerve_surg_tmr_ulnar
+rename amp1_pain_mgmt_prevt_other___4 nerve_surg_tmr_axillary
+rename amp1_pain_mgmt_prevt_other___5 nerve_surg_tmr_musculocutaneous
+rename amp1_pain_mgmt_prevt_other___6 nerve_surg_tmr_intercostobrach
+rename amp1_pain_mgmt_prevt_other___7 nerve_surg_tmr_labc
+rename amp1_pain_mgmt_prevt_other___8 nerve_surg_tmr_mabc
+rename amp1_pain_mgmt_prevt_other___9 nerve_surg_tmr_digital
+rename amp1_pain_mgmt_prevt_v_3 nerve_surg_tmr_peroneal_superf
+rename amp1_pain_mgmt_prevt_v_4 nerve_surg_tmr_peroneal_common
+rename amp1_pain_mgmt_prevt_v_5 nerve_surg_tmr_peroneal_deep
+rename amp1_pain_mgmt_prevt_v_6 nerve_surg_tmr_saphenous
+rename amp1_pain_mgmt_prevt_v_7 nerve_surg_tmr_tibial
+rename amp1_pain_mgmt_prevt_v_8 nerve_surg_tmr_femoral
+rename amp1_pain_mgmt_prevt_v_9 nerve_surg_tmr_sciatic
+rename amp1_pain_mgmt_prevt_v_10 nerve_surg_tmr_tibial_lat
+rename amp1_pain_mgmt_prevt_v_11 nerve_surg_tmr_tibial_med
+rename amp1_pain_mgmt_prevt_v_12 nerve_surg_tmr_sural
+rename amp1_pain_mgmt_prevt_v_13 nerve_surg_tmr_sural_lat
+rename amp1_pain_mgmt_prevt_v_14 nerve_surg_tmr_sural_med
+rename amp1_pain_mgmt_prevt_v_15 nerve_surg_tmr_other
+rename rpni_nerves_used___1 nerve_surg_rpni_radial
+rename rpni_nerves_used___23 nerve_surg_rpni_radial_superf
+rename rpni_nerves_used___2 nerve_surg_rpni_median
+rename rpni_nerves_used___3 nerve_surg_rpni_ulnar
+rename rpni_nerves_used___4 nerve_surg_rpni_axillary
+rename rpni_nerves_used___5 nerve_surg_rpni_musculocutaneous
+rename rpni_nerves_used___6 nerve_surg_rpni_intercostobrach
+rename rpni_nerves_used___7 nerve_surg_rpni_labc
+rename rpni_nerves_used___8 nerve_surg_rpni_mabc
+rename rpni_nerves_used___9 nerve_surg_rpni_digital
+rename rpni_nerves_used___10 nerve_surg_rpni_peroneal_superf
+rename rpni_nerves_used___11 nerve_surg_rpni_peroneal_common
+rename rpni_nerves_used___12 nerve_surg_rpni_peroneal_deep
+rename rpni_nerves_used___13 nerve_surg_rpni_saphenous
+rename rpni_nerves_used___14 nerve_surg_rpni_tibial
+rename rpni_nerves_used___22 nerve_surg_rpni_femoral
+rename rpni_nerves_used___15 nerve_surg_rpni_sciatic
+rename rpni_nerves_used___16 nerve_surg_rpni_tibial_lat
+rename rpni_nerves_used___17 nerve_surg_rpni_tibial_med
+rename rpni_nerves_used___18 nerve_surg_rpni_sural
+rename rpni_nerves_used___19 nerve_surg_rpni_sural_lat
+rename rpni_nerves_used___20 nerve_surg_rpni_sural_med
+rename rpni_nerves_used___21 nerve_surg_rpni_other
+rename amp1_pain_mgmt_clini_v_16 nerve_surg_neuroma_radial
+rename amp1_pain_mgmt_clini_v_17 nerve_surg_neuroma_radial_superf
+rename amp1_pain_mgmt_clini_v_18 nerve_surg_neuroma_median
+rename amp1_pain_mgmt_clini_v_19 nerve_surg_neuroma_ulnar
+rename amp1_pain_mgmt_clini_v_20 nerve_surg_neuroma_axillary
+rename amp1_pain_mgmt_clini_v_21 nerve_surg_neuroma_musculocut
+rename nerve_surg_tmr_musculocutaneous nerve_surg_tmr_musculocut
+rename nerve_surg_rpni_musculocutaneous nerve_surg_rpni_musculocut
+rename amp1_pain_mgmt_clini_v_22 nerve_surg_neuroma_intercostobr
+rename nerve_surg_tmr_intercostobrach nerve_surg_tmr_intercostobr
+rename nerve_surg_rpni_intercostobrach nerve_surg_rpni_intercostobr
+rename amp1_pain_mgmt_clini_v_23 nerve_surg_neuroma_labc
+rename amp1_pain_mgmt_clini_v_24 nerve_surg_neuroma_mabc
+rename amp1_pain_mgmt_clini_v_25 nerve_surg_neuroma_digital
+rename amp1_pain_mgmt_clini_v_26 nerve_surg_neuroma_peroneal_sf
+rename amp1_pain_mgmt_clini_v_27 nerve_surg_neuroma_peroneal_cm
+rename amp1_pain_mgmt_clini_v_28 nerve_surg_neuroma_peroneal_deep
+rename amp1_pain_mgmt_clini_v_29 nerve_surg_neuroma_saphenous
+rename amp1_pain_mgmt_clini_v_30 nerve_surg_neuroma_tibial
+rename amp1_pain_mgmt_clini_v_31 nerve_surg_neuroma_femoral
+rename amp1_pain_mgmt_clini_v_32 nerve_surg_neuroma_sciatic
+rename amp1_pain_mgmt_clini_v_33 nerve_surg_neuroma_tibial_lat
+rename amp1_pain_mgmt_clini_v_34 nerve_surg_neuroma_tibial_med
+rename amp1_pain_mgmt_clini_v_35 nerve_surg_neuroma_sural
+rename amp1_pain_mgmt_clini_v_36 nerve_surg_neuroma_sural_lat
+rename amp1_pain_mgmt_clini_v_37 nerve_surg_neuroma_sural_med
+rename amp1_pain_mgmt_clini_v_38 nerve_surg_neuroma_other
+rename type_surgery_revision___1 type_rev1_tmr
+rename type_surgery_revision___2 type_rev1_rpni
+rename type_surgery_revision___3 type_rev1_other
+rename tmr_rev_nerves_used___1 nerve_rev1_tmr_radial
+rename tmr_rev_nerves_used___23 nerve_rev1_tmr_radial_superf
+rename tmr_rev_nerves_used___2 nerve_rev1_tmr_median
+rename tmr_rev_nerves_used___3 nerve_rev1_tmr_ulnar
+rename tmr_rev_nerves_used___4 nerve_rev1_tmr_axillary
+rename tmr_rev_nerves_used___5 nerve_rev1_tmr_musculocut
+rename tmr_rev_nerves_used___6 nerve_rev1_tmr_intercostobr
+rename tmr_rev_nerves_used___7 nerve_rev1_tmr_labc
+rename tmr_rev_nerves_used___8 nerve_rev1_tmr_mabc
+rename tmr_rev_nerves_used___9 nerve_rev1_tmr_digital
+rename tmr_rev_nerves_used___10 nerve_rev1_tmr_peroneal_sf
+rename tmr_rev_nerves_used___11 nerve_rev1_tmr_peroneal_cm
+rename tmr_rev_nerves_used___12 nerve_rev1_tmr_peroneal_dp
+rename tmr_rev_nerves_used___13 nerve_rev1_tmr_saphenous
+rename tmr_rev_nerves_used___14 nerve_rev1_tmr_tibial
+rename tmr_rev_nerves_used___22 nerve_rev1_tmr_femoral
+rename tmr_rev_nerves_used___15 nerve_rev1_tmr_sciatic
+rename tmr_rev_nerves_used___16 nerve_rev1_tmr_tibial_lat
+rename tmr_rev_nerves_used___17 nerve_rev1_tmr_tibial_med
+rename tmr_rev_nerves_used___18 nerve_rev1_tmr_sural
+rename tmr_rev_nerves_used___19 nerve_rev1_tmr_sural_lat
+rename tmr_rev_nerves_used___20 nerve_rev1_tmr_sural_med
+rename tmr_rev_nerves_used___21 nerve_rev1_tmr_other
+rename rpni_rev_nerves_used___1 nerve_rev1_rpni_radial
+rename rpni_rev_nerves_used___23 nerve_rev1_rpni_radial_superf
+rename rpni_rev_nerves_used___2 nerve_rev1_rpni_median
+rename rpni_rev_nerves_used___3 nerve_rev1_rpni_ulnar
+rename rpni_rev_nerves_used___4 nerve_rev1_rpni_axillary
+rename rpni_rev_nerves_used___5 nerve_rev1_rpni_musculocut
+rename rpni_rev_nerves_used___6 nerve_rev1_rpni_intercostobrach
+rename rpni_rev_nerves_used___7 nerve_rev1_rpni_labc
+rename rpni_rev_nerves_used___8 nerve_rev1_rpni_mabc
+rename rpni_rev_nerves_used___9 nerve_rev1_rpni_digital
+rename rpni_rev_nerves_used___10 nerve_rev1_rpni_peroneal_sf
+rename rpni_rev_nerves_used___11 nerve_rev1_rpni_peroneal_cm
+rename rpni_rev_nerves_used___12 nerve_rev1_rpni_peroneal_deep
+rename rpni_rev_nerves_used___13 nerve_rev1_rpni_saphenous
+rename rpni_rev_nerves_used___14 nerve_rev1_rpni_tibial
+rename rpni_rev_nerves_used___22 nerve_rev1_rpni_femoral
+rename rpni_rev_nerves_used___15 nerve_rev1_rpni_sciatic
+rename rpni_rev_nerves_used___16 nerve_rev1_rpni_tibial_lat
+rename rpni_rev_nerves_used___17 nerve_rev1_rpni_tibial_med
+rename rpni_rev_nerves_used___18 nerve_rev1_rpni_sural
+rename rpni_rev_nerves_used___19 nerve_rev1_rpni_sural_lat
+rename rpni_rev_nerves_used___20 nerve_rev1_rpni_sural_med
+rename rpni_rev_nerves_used___21 nerve_rev1_rpni_other
+rename neuroma_rev___1 nerve_rev1_neuroma_radial
+rename neuroma_rev___23 nerve_rev1_neuroma_radial_superf
+rename neuroma_rev___2 nerve_rev1_neuroma_median
+rename neuroma_rev___3 nerve_rev1_neuroma_ulnar
+rename neuroma_rev___4 nerve_rev1_neuroma_axillary
+rename neuroma_rev___5 nerve_rev1_neuroma_musculocut
+rename neuroma_rev___6 nerve_rev1_neuroma_intercostobr
+rename neuroma_rev___7 nerve_rev1_neuroma_labc
+rename neuroma_rev___8 nerve_rev1_neuroma_mabc
+rename neuroma_rev___9 nerve_rev1_neuroma_digital
+rename neuroma_rev___10 nerve_rev1_neuroma_peroneal_sf
+rename neuroma_rev___11 nerve_rev1_neuroma_peroneal_cm
+rename neuroma_rev___12 nerve_rev1_neuroma_peroneal_deep
+rename neuroma_rev___13 nerve_rev1_neuroma_saphenous
+rename neuroma_rev___14 nerve_rev1_neuroma_tibial
+rename neuroma_rev___22 nerve_rev1_neuroma_femoral
+rename neuroma_rev___15 nerve_rev1_neuroma_sciatic
+rename neuroma_rev___16 nerve_rev1_neuroma_tibial_lat
+rename neuroma_rev___17 nerve_rev1_neuroma_tibial_med
+rename neuroma_rev___18 nerve_rev1_neuroma_sural
+rename neuroma_rev___19 nerve_rev1_neuroma_sural_lat
+rename neuroma_rev___20 nerve_rev1_neuroma_sural_med
+rename neuroma_rev___21 nerve_rev1_neuroma_other
+rename date_surgery_revision date_surgery_rev1
+rename date_surgery_revision2 date_surgery_rev2
+rename date_surgery_revision3 date_surgery_rev3
+rename type_surgery_revision2___1 type_rev2_tmr
+rename type_surgery_revision2___2 type_rev2_rpni
+rename type_surgery_revision2___3 type_rev2_other
+rename type_surgery_revision3___1 type_rev3_tmr
+rename type_surgery_revision3___2 type_rev_rpni
+rename type_rev_rpni type_rev3_rpni
+rename type_surgery_revision3___3 type_rev3_other
+rename tmr_rev2_nerves_used___1 nerve_rev2_tmr_radial
+rename tmr_rev2_nerves_used___23 nerve_rev2_tmr_radial_superf
+rename tmr_rev2_nerves_used___2 nerve_rev2_tmr_median
+rename tmr_rev2_nerves_used___3 nerve_rev2_tmr_ulnar
+rename tmr_rev2_nerves_used___4 nerve_rev2_tmr_axillary
+rename tmr_rev2_nerves_used___5 nerve_rev2_tmr_musculocut
+rename tmr_rev2_nerves_used___6 nerve_rev2_tmr_intercostobr
+rename tmr_rev2_nerves_used___7 nerve_rev2_tmr_labc
+rename tmr_rev2_nerves_used___8 nerve_rev2_tmr_mabc
+rename tmr_rev2_nerves_used___9 nerve_rev2_tmr_digital
+rename tmr_rev2_nerves_used___10 nerve_rev2_tmr_peroneal_sf
+rename tmr_rev2_nerves_used___11 nerve_rev2_tmr_peroneal_cm
+rename tmr_rev2_nerves_used___12 nerve_rev2_tmr_peroneal_deep
+rename tmr_rev2_nerves_used___13 nerve_rev2_tmr_saphenous
+rename tmr_rev2_nerves_used___14 nerve_rev2_tmr_tibial
+rename tmr_rev2_nerves_used___22 nerve_rev2_tmr_femoral
+rename tmr_rev2_nerves_used___15 nerve_rev2_tmr_sciatic
+rename tmr_rev2_nerves_used___16 nerve_rev2_tmr_tibial_lat
+rename tmr_rev2_nerves_used___17 nerve_rev2_tmr_tibial_med
+rename tmr_rev2_nerves_used___18 nerve_rev2_tmr_sural
+rename tmr_rev2_nerves_used___19 nerve_rev2_tmr_sural_lat
+rename tmr_rev2_nerves_used___20 nerve_rev2_tmr_sural_med
+rename tmr_rev2_nerves_used___21 nerve_rev2_tmr_other
+rename rpni_rev2_nerves_used___1 nerve_rev2_rpni_radial
+rename rpni_rev2_nerves_used___23 nerve_rev2_rpni_radial_superf
+rename rpni_rev2_nerves_used___2 nerve_rev2_rpni_median
+rename rpni_rev2_nerves_used___3 nerve_rev2_rpni_ulnar
+rename rpni_rev2_nerves_used___4 nerve_rev2_rpni_axillary
+rename rpni_rev2_nerves_used___5 nerve_rev2_rpni_musculocut
+rename rpni_rev2_nerves_used___6 nerve_rev2_rpni_intercostobr
+rename rpni_rev2_nerves_used___7 nerve_rev2_rpni_labc
+rename rpni_rev2_nerves_used___8 nerve_rev2_rpni_mabc
+rename rpni_rev2_nerves_used___9 nerve_rev2_rpni_digital
+rename rpni_rev2_nerves_used___10 nerve_rev2_rpni_peroneal_sf
+rename rpni_rev2_nerves_used___11 nerve_rev2_rpni_peroneal_cm
+rename rpni_rev2_nerves_used___12 nerve_rev2_rpni_peroneal_deep
+rename rpni_rev2_nerves_used___13 nerve_rev2_rpni_saphenous
+rename rpni_rev2_nerves_used___14 nerve_rev2_rpni_tibial
+rename rpni_rev2_nerves_used___22 nerve_rev2_rpni_femoral
+rename rpni_rev2_nerves_used___15 nerve_rev2_rpni_sciatic
+rename rpni_rev2_nerves_used___16 nerve_rev2_rpni_tibial_lat
+rename rpni_rev2_nerves_used___17 nerve_rev2_rpni_tibial_med
+rename rpni_rev2_nerves_used___18 nerve_rev2_rpni_sural
+rename rpni_rev2_nerves_used___19 nerve_rev2_rpni_sural_lat
+rename rpni_rev2_nerves_used___20 nerve_rev2_rpni_sural_med
+rename rpni_rev2_nerves_used___21 nerve_rev2_rpni_other
+rename neuroma_rev2___1 nerve_rev2_neuroma_radial
+rename neuroma_rev2___23 nerve_rev2_neuroma_radial_superf
+rename neuroma_rev2___2 nerve_rev2_neuroma_median
+rename neuroma_rev2___3 nerve_rev2_neuroma_ulnar
+rename neuroma_rev2___4 nerve_rev2_neuroma_axillary
+rename neuroma_rev2___5 nerve_rev2_neuroma_musculocut
+rename neuroma_rev2___6 nerve_rev2_neuroma_intercostobr
+rename neuroma_rev2___7 nerve_rev2_neuroma_labc
+rename neuroma_rev2___8 nerve_rev2_neuroma_mabc
+rename neuroma_rev2___9 nerve_rev2_neuroma_digital
+rename neuroma_rev2___10 nerve_rev2_neuroma_peroneal_sf
+rename neuroma_rev2___11 nerve_rev2_neuroma_peroneal_cm
+rename neuroma_rev2___12 nerve_rev2_neuroma_peroneal_deep
+rename neuroma_rev2___13 nerve_rev2_neuroma_saphenous
+rename neuroma_rev2___14 nerve_rev2_neuroma_tibial
+rename neuroma_rev2___22 nerve_rev2_neuroma_femoral
+rename neuroma_rev2___15 nerve_rev2_neuroma_sciatic
+rename neuroma_rev2___16 nerve_rev2_neuroma_tibial_lat
+rename neuroma_rev2___17 nerve_rev2_neuroma_tibial_med
+rename neuroma_rev2___18 nerve_rev2_neuroma_sural
+rename neuroma_rev2___19 nerve_rev2_neuroma_sural_lat
+rename neuroma_rev2___20 nerve_rev2_neuroma_sural_med
+rename neuroma_rev2___21 nerve_rev2_neuroma_other
+rename tmr_rev3_nerves_used___1 nerve_rev3_tmr_radial
+rename tmr_rev3_nerves_used___2 nerve_rev3_tmr_radial_superf
+rename nerve_rev3_tmr_radial_superf nerve_rev3_tmr_median
+rename tmr_rev3_nerves_used___3 nerve_rev3_tmr_ulnar
+rename tmr_rev3_nerves_used___4 nerve_rev3_tmr_axillary
+rename tmr_rev3_nerves_used___5 nerve_rev3_tmr_musculocut
+rename tmr_rev3_nerves_used___6 nerve_rev3_tmr_intercostobr
+rename tmr_rev3_nerves_used___7 nerve_rev3_tmr_labc
+rename tmr_rev3_nerves_used___8 nerve_rev3_tmr_mabc
+rename tmr_rev3_nerves_used___9 nerve_rev3_tmr_digital
+rename tmr_rev3_nerves_used___10 nerve_rev3_tmr_peroneal_sf
+rename tmr_rev3_nerves_used___11 nerve_rev3_tmr_peroneal_cm
+rename tmr_rev3_nerves_used___12 nerve_rev3_tmr_peroneal_deep
+rename tmr_rev3_nerves_used___13 nerve_rev3_tmr_saphenous
+rename tmr_rev3_nerves_used___14 nerve_rev3_tmr_tibial
+rename tmr_rev3_nerves_used___22 nerve_rev3_tmr_femoral
+rename tmr_rev3_nerves_used___15 nerve_rev3_tmr_sciatic
+rename tmr_rev3_nerves_used___16 nerve_rev3_tmr_tibial_lat
+rename tmr_rev3_nerves_used___17 nerve_rev3_tmr_tibial_med
+rename tmr_rev3_nerves_used___18 nerve_rev3_tmr_sural
+rename tmr_rev3_nerves_used___19 nerve_rev3_tmr_sural_lat
+rename tmr_rev3_nerves_used___20 nerve_rev3_tmr_sural_med
+rename tmr_rev3_nerves_used___21 nerve_rev3_tmr_other
+rename rpni_rev3_nerves_used___1 nerve_rev3_rpni_radial
+rename rpni_rev3_nerves_used___2 nerve_rev3_rpni_median
+rename rpni_rev3_nerves_used___3 nerve_rev3_rpni_ulnar
+rename rpni_rev3_nerves_used___4 nerve_rev3_rpni_axillary
+rename rpni_rev3_nerves_used___5 nerve_rev3_rpni_musculocut
+rename rpni_rev3_nerves_used___6 nerve_rev3_rpni_intercostobr
+rename rpni_rev3_nerves_used___7 nerve_rev3_rpni_labc
+rename rpni_rev3_nerves_used___8 nerve_rev3_rpni_mabc
+rename rpni_rev3_nerves_used___9 nerve_rev3_rpni_digital
+rename rpni_rev3_nerves_used___10 nerve_rev3_rpni_peroneal_sf
+rename rpni_rev3_nerves_used___11 nerve_rev3_rpni_peroneal_cm
+rename rpni_rev3_nerves_used___12 nerve_rev3_rpni_peroneal_deep
+rename rpni_rev3_nerves_used___13 nerve_rev3_rpni_saphenous
+rename rpni_rev3_nerves_used___14 nerve_rev3_rpni_tibial
+rename rpni_rev3_nerves_used___22 nerve_rev3_rpni_femoral
+rename rpni_rev3_nerves_used___15 nerve_rev3_rpni_sciatic
+rename rpni_rev3_nerves_used___16 nerve_rev3_rpni_tibial_lat
+rename rpni_rev3_nerves_used___17 nerve_rev3_rpni_tibial_med
+rename rpni_rev3_nerves_used___18 nerve_rev3_rpni_sural
+rename rpni_rev3_nerves_used___19 nerve_rev3_rpni_sural_lat
+rename rpni_rev3_nerves_used___20 nerve_rev3_rpni_sural_med
+rename rpni_rev3_nerves_used___21 nerve_rev3_rpni_other
+rename neuroma_rev3___1 nerve_rev3_neuroma_radial
+rename neuroma_rev3___2 nerve_rev3_neuroma_median
+rename neuroma_rev3___3 nerve_rev3_neuroma_ulnar
+rename neuroma_rev3___4 nerve_rev3_neuroma_axillary
+rename neuroma_rev3___5 nerve_rev3_neuroma_musculocut
+rename neuroma_rev3___6 nerve_rev3_neuroma_intercostobr
+rename neuroma_rev3___7 nerve_rev3_neuroma_labc
+rename neuroma_rev3___8 nerve_rev3_neuroma_mabc
+rename neuroma_rev3___9 nerve_rev3_neuroma_digital
+rename neuroma_rev3___10 nerve_rev3_neuroma_peroneal_sf
+rename neuroma_rev3___11 nerve_rev3_neuroma_peroneal_cm
+rename neuroma_rev3___12 nerve_rev3_neuroma_peroneal_deep
+rename neuroma_rev3___13 nerve_rev3_neuroma_saphenous
+rename neuroma_rev3___14 nerve_rev3_neuroma_tibial
+rename neuroma_rev3___22 nerve_rev3_neuroma_femoral
+rename neuroma_rev3___15 nerve_rev3_neuroma_sciatic
+rename neuroma_rev3___16 nerve_rev3_neuroma_tibial_lat
+rename neuroma_rev3___17 nerve_rev3_neuroma_tibial_med
+rename neuroma_rev3___18 nerve_rev3_neuroma_sural
+rename neuroma_rev3___19 nerve_rev3_neuroma_sural_lat
+rename neuroma_rev3___20 nerve_rev3_neuroma_sural_med
+rename neuroma_rev3___21 nerve_rev3_neuroma_other
+rename nerve_rev1_rpni_intercostobrach nerve_rev1_rpni_intercostobr
+rename nerve_rev1_tmr_peroneal_dp nerve_rev1_tmr_peroneal_deep
+rename nerve_surg_tmr_peroneal_superf nerve_surg_tmr_peroneal_sf
+rename nerve_surg_tmr_peroneal_common nerve_surg_tmr_peroneal_cm
+rename nerve_surg_rpni_peroneal_superf nerve_surg_rpni_peroneal_sf
+rename nerve_surg_rpni_peroneal_common nerve_surg_rpni_peroneal_cm
+rename birth_year birth_date
+rename zipcode address
+rename amp1_date date_amp1
+rename amp1_date_injury date_injury_amp1
+rename amp1_indication indication_amp1
+rename amp1_limb_side limb_side_amp1
+rename amp1_lvl lvl_amp1
+rename amp1_mech_injury	mech_injury_amp1
+rename date_promis_2_v2_v2 date_promis_4
+
+// relabeling checked/unchecked to yes and no
+label define yesno 1 "Yes" 0 "No"
+
+
+******************************************************************************
+******************************************************************************
+
+* 2.  generate time based variables
+
+
+
+//generating primary/secondary tmr variable
+generate time_amptmr = date_surgery_ican - date_amp1
+generate timing_tmr = 1 if time_amptmr < 15 & time_amptmr !=. // primary
+replace timing_tmr = 0 if time_amptmr > 14  & time_amptmr !=. // secondary
+replace timing_tmr = . if type_surg_tmr ==.
+
+label define timing_tmr 1 "Primary" 0 "Secondary"
+label values timing_tmr timing_tmr
+
+//generating age at amputation
+generate age_amputation = (date_amp1 - birth_date)/365.25
+//generating age at tmr
+generate age_ican_surgery = (date_surgery_ican - birth_date)/365.25
+
+//gen time tmr to pain score
+forvalues i = 1/81 {
+generate time_tmrtopainscore`i' = date_pain_score_`i' - date_surgery_ican
+}
+
+gen time_preopscoretotmr = date_surgery_ican - date_pain_score_preop 
+
+
+// follow up painscore
+generate fu_tmrtopainscore = .
+forvalues i = 1/81 {
+replace fu_tmrtopainscore = time_tmrtopainscore`i' if time_tmrtopainscore`i' != .
+}
+
+gen fu_tmrtopainscore_y=fu_tmrtopainscore/365.25
+
+
+
+/*=========================================================================
+* 4. drop patients based on excl criteria study
+=========================================================================*/
+
+sort mrn
+by mrn: generate count = _n
+order count, after(participant_id)
+
+tab count
+tab mrn // 2311
+
+*************************************************
+// Filter out patients based on exclusion criteria
+drop if type_surg_tmr == . // if missing (drop n=0), n=2311
+drop if type_surg_tmr == 0 // if no tmr, n=410 (1905)
+drop if date_amp1 == . // if no amputation, n=333 (77)
+drop if timing_tmr ==. // NA
+drop if limb_side_amp1 == 4 // if bilat drop n=8
+drop if limb_side_amp1 == 5 // if bilat drop n=7, n=318 without bilats
+drop if score_pain_1 == . // if no painscores drop n=19, n=299
+// drop if date_surgery_rev1 != . // if revision
+// drop if date_surgery_rev2 != . // if revision
+// drop if date_surgery_rev3 != . // if revision
+
+tab score_pain_1, m
+
+
+tab date_surgery_rev1, m // n=34 (n=265 without revision) ; total n=299
+tab date_surgery_rev2, m // of which n=10 with 2 revs 
+tab date_surgery_rev3, m // of which n= 5 with 3 revs
+
+
+
+tab timing_tmr, m // n=205, s151/p148
+
+tab timing_tmr // no minimal FU criterion
+tab timing_tmr if fu_tmrtopainscore >= 90  // 3m, s136/p124
+tab timing_tmr if fu_tmrtopainscore > 136 // 4.5m, s131/p115 
+tab timing_tmr if fu_tmrtopainscore > 182 // 6m, s129/p113
+tab timing_tmr if fu_tmrtopainscore > 365 // 1y, s115/p93
+
+tab timing_tmr if fu_tmrtopainscore > 545 // 1.5y, s102/p79  
+tab timing_tmr if fu_tmrtopainscore > 730 // 2y, s86/p62
+tab timing_tmr if fu_tmrtopainscore > 1095 // 3y, s57/p37
+tab timing_tmr if fu_tmrtopainscore > 1460 // 4y, s40/p14
+tab timing_tmr if fu_tmrtopainscore > 1825 // 5y, s16/p5
+
+
+tab timing_tmr if fu_tmrtopainscore > 365 // 1y, s85/p63
+tab timing_tmr if fu_tmrtopainscore > 365 & date_surgery_rev1==. // 1y, s106/p69
+
+// for 6m FU
+drop if fu_tmrtopainscore<180
+drop if timing_tmr ==. // if no tmr and no amp
+drop if date_surgery_rev1 != . // if revision
+drop if type_surg_tmr == 0 // if no tmr
+drop if score_pain_1 == . // if no painscores 
+
+tab timing_tmr, m // n=115, prim 48 sec 67
+
+summ fu_tmrtopainscore_y, d // 708 (385-1022) days = 1.9 (1.0-2.8y)
+
+
+
+
+
+
+
+
+
+
+**************************
+// IDENTIFY RESPONDERS / NON-RESPONDERS
+
+******************************************************************************
+******************************************************************************
+*2.5 dropping pat with short fu (<3m)
+drop if fu_tmrtopainscore < 180
+
+tab mrn
+tab timing_tmr // s129, p113
+
+// drop patients based on exclusion criteria 
+drop if mrn==2635687 // Bilat
+drop if mrn==2942679 // Bilat
+drop if mrn==3812284 // Bilat
+drop if mrn==3588894 // no TMR, complex wounds closure
+
+
+
+
+/// binary variable for any revision done
+gen tmr_rev_1 =0
+replace tmr_rev_1 = 1 if date_surgery_rev1 != .
+
+tab tmr_rev_1
+
+
+
+
+******************************************************************************
+******************************************************************************
+******************************************************************************
+******************************************************************************
+// NEXT STEPS WILL RESHAPE TO LONG FORMATE
+******************************************************************************
+******************************************************************************
+
+
+rename score_pain_preop score_pain_0
+rename date_pain_score_preop date_pain_score_0
+rename score_pain_interference_preop score_pain_interference_0
+rename score_pain_intensity_preop score_pain_intensity_0
+rename date_promis_preop date_promis_0
+gen time_tmrtopainscore0 =-30
+
+duplicates report mrn
+
+tab mrn
+
+drop if record_id==2
+drop if record_id==954
+
+
+
+* 7 detecting pain remission
+
+// generating variable for pain remission per definition of <=3 for >3months
+//  FIRST GO TO LONG LAYOUT
+reshape long score_pain_ date_pain_score_ score_pain_intensity_ score_pain_interference_ date_promis_ time_tmrtopainscore, i(mrn) j(no_painscore)
+drop if missing(score_pain_, time_tmrtopainscore)
+
+
+order score_pain_, after(no_painscore)
+order time_tmrtopainscore, after(score_pain_)
+order score_pain_interference_, after(time_tmrtopainscore)
+order score_pain_intensity_, after(score_pain_interference_)
+order date_pain_score_, after(time_tmrtopainscore)
+order score_pain_, after(time_tmrtopainscore)
+
+
+
+
+
+
+
+
+///
+
+* Check for repeated time values within each panel
+by mrn: gen repeated_time = time_tmrtopainscore[_n-1] == time_tmrtopainscore if _n > 1
+list mrn time_tmrtopainscore repeated_time if repeated_time == 1
+
+
+
+
+*** CODE FOR ACHIEVING MCID ***
+
+gen score_pain_preop = .
+replace score_pain_preop = score_pain_ if no_painscore == 0 & time_tmrtopainscore == -30
+bysort mrn (no_painscore): replace score_pain_preop = score_pain_preop[_n-1] if missing(score_pain_preop)
+
+gen score_pain_final = .
+bysort mrn (no_painscore): replace score_pain_final = score_pain_ if _n == _N
+bysort mrn (no_painscore): replace score_pain_final = score_pain_final[_N]
+
+
+gen diff_preop_final = score_pain_preop - score_pain_final
+gen MCID = (diff_preop_final >= 3)
+
+drop diff_preop_final
+drop MCID
+
+
+
+
+
+
+
+/////
+
+
+
+
+
+
+*** CODE FOR SUSTAINED MILD PAIN  ***
+
+gen final_followup_date = .
+bysort mrn (date_pain_score_): replace final_followup_date = date_pain_score_ if _n == _N
+bysort mrn (date_pain_score_): replace final_followup_date = final_followup_date[_N]
+format final_followup_date %td
+
+* Step 1: Identify when mild pain is reached (score ≤ 3)
+gen mild_pain = (score_pain_ <= 3)
+
+* Step 2: Calculate the duration for which mild pain was maintained (in days)
+gen days_to_final = final_followup_date - date_pain_score_
+
+* Step 3: Calculate how long each patient was in mild pain (≤ 3)
+gen days_in_mild_pain = .
+bysort mrn (date_pain_score_): replace days_in_mild_pain = days_to_final if mild_pain
+
+* Step 4: Identify if the final pain score is ≤ 3
+gen final_pain_is_mild = (score_pain_final <= 3)
+
+* Step 5: Check if the patient maintained mild pain for at least 90 days and has a final pain score ≤ 3
+gen maintained_mild_pain_90_days = (days_in_mild_pain >= 90) & final_pain_is_mild
+
+* Step 6, equalize
+bysort mrn (no_painscore): replace maintained_mild_pain_90_days = 1 if days_to_final == 0 & maintained_mild_pain_90_days[_n-1] == 1
+
+
+*** SAME FOR SUSTAINED PAIN DISAPPEARENCE ***
+
+* Step 7: Identify when pain has disappeared (score == 0)
+gen pain_disappearance = (score_pain_ == 0)
+
+* Step 8: Calculate how long each patient maintained pain disappearance (score = 0)
+gen days_in_pain_disappearance = .
+bysort mrn (date_pain_score_): replace days_in_pain_disappearance = days_to_final if pain_disappearance
+
+* Step 9: Identify if the final pain score is 0
+gen final_pain_is_zero = (score_pain_final == 0)
+
+* Step 10: Check if the patient maintained pain disappearance for at least 90 days and has a final pain score of 0
+gen main_pain_disap_90_days = (days_in_pain_disappearance >= 90) & final_pain_is_zero
+
+* Step 11: Equalize for the patient's full period with pain disappearance (score = 0)
+bysort mrn (no_painscore): replace main_pain_disap_90_days = 1 if days_to_final == 0 & main_pain_disap_90_days[_n-1] == 1
+
+
+
+
+
+// THIS SHOWS THAT n=82/129 sTMR patients (63.4%) reach the MCID; 63.6% Super comparable to our previous study with n=64/101 
+
+tab maintained_mild_pain_90_days timing_tmr if no_painscore == 1 , col chi
+
+
+logistic maintained_mild_pain_90_days timing_tmr if no_painscore == 1
+
+/* this shows for mild pain (NRS<=3 for 3 months up to final follow-up)
+
+n=73/129 sTMR patients achieve mild pain (56.6%)
+n=78/111 pTMR patients achieve mild pain (70.3%) ( or "sustained pain prophylaxis" as how it was defined in previous JPRAS study)
+significantly more pTMR patients achieve this state of mild pain/prophylaxis (OR 1.8, p=0.029, 95%CI: 1.061-3.098)
+
+*/
+
+tab main_pain_disap_90_days timing_tmr if no_painscore == 1, col chi
+
+logistic main_pain_disap_90_days timing_tmr if no_painscore == 1
+
+/* this shows for pain disappearance (NRS=0 for 3 months up to final follow-up)
+
+n=24/129 sTMR patients achieve pain disappearance (56.6%)
+n=38/111 pTMR patients achieve pain disappearance (25.8%) ( or "sustained pain disappearance" as how it was defined in previous JPRAS study)
+significantly more pTMR patients achieve this state of sustained pain disappearance (OR 2.3, p=0.006, 95%CI: 1.260-4.116)
+
+*/
+
+
+tab timing_tmr if MCID ==1  & no_painscore == 1, m 
+
+
+tab timing_tmr if MCID ==1  & no_painscore == 1, m // n=82/129 (63.4%) sTMR achieve MCID
+tab timing_tmr if maintained_mild_pain_90_days ==1  & no_painscore == 1, m // n=73 sTMR achieve mild pain
+tab timing_tmr if maintained_mild_pain_90_days ==1 & MCID ==1 & no_painscore == 1, m // n=68 sTMR achieve MCID + mild pain (its possible to have a drop of 3 or more points while not achieving a sunsatined score of 3 or lower; a drop from 10-4 may be more meaningful than from 5-2)
+
+
+tab mrn timing_tmr if tmr_rev_1==0
+tab mrn tmr_rev_1
+
+
+
+//// Use the following descriptives to identify responders; with revisions split up
+
+
+** MCID
+tab MCID timing_tmr if  no_painscore == 1 & tmr_rev_1==0, col chi 
+tab MCID timing_tmr if  no_painscore == 1 & tmr_rev_1==1, col chi 
+
+** mild pain
+tab maintained_mild_pain_90_days timing_tmr if no_painscore == 1 & tmr_rev_1==0, col chi
+tab maintained_mild_pain_90_days timing_tmr if no_painscore == 1 & tmr_rev_1==1, col chi
+
+** pain disap
+tab main_pain_disap_90_days timing_tmr if no_painscore == 1 & tmr_rev_1==0, col chi
+tab main_pain_disap_90_days timing_tmr if no_painscore == 1 & tmr_rev_1==1, col chi
+
+
+
+
+tab mrn if mrn==1124482
+tab mrn if mrn==4314533
+tab mrn if mrn==4853860
+
+tab tmr_rev_1 if  mrn==1124482
+tab tmr_rev_1 if  mrn==4314533
+tab tmr_rev_1 if  mrn==4853860
+
+/////
+
+tab MCID tmr_rev_1 if no_painscore ==1 & timing_tmr==0
+
+tab timing_tmr if no_painscore ==1
+
+
+**** THIS IS TO CREATE UNIQUE MRN variables
+gen unique_mrn_count = _n == 1  
+replace unique_mrn_count = sum(unique_mrn_count) if mrn != mrn[_n-1]
+
+drop unique_mrn_count
+
+bysort mrn : gen count_within_mrn = _n
+egen unique_mrn_count = group(mrn)
+
+tab unique_mrn_count if timing_tmr==0 & count_within_mrn==1
+
+order unique_mrn_count, after (mrn)
+order count_within_mrn, after (unique_mrn_count)
+
+
+
+********************
+// Filtering for database pt level
+
+drop if  count_within_mrn != 1
+tab timing_tmr tmr_rev_1
+sort timing_tmr tmr_rev_1
+
+
+tab timing_tmr tmr_rev_1 if mrn==4545478 
+tab timing_tmr tmr_rev_1 if mrn==5684452  
+tab timing_tmr tmr_rev_1 if mrn==7031140 
+tab timing_tmr tmr_rev_1 if mrn==7057059  
+
+tab lvl_amp1
+tab mrn if lvl_amp1==7 // other 3
+tab mrn if lvl_amp1==11 // partial foot 2
+tab mrn if lvl_amp1==3 // partial hand 5
+
+** EXCLUSIONS **
+
+// 185601 TMT
+// 3483677 tibial turn up
+// 8129267 partial hand
+// 5684452 TMT without TMR
+// 7552354 was TMT --> BKA conversion
+
+// 4545478 bilat
+// 5684452 no TMR, TMT amp
+// 7031140 left transhum amp + AKA
+
+// 2669224 darach 2021, partial hand/TMR 2021, UE AMI Carty 2022
+// 3963805 index finger partial amp
+// 4082022 very complex patient, multiple dig amp + AKA
+// 6757452 index finger partial amp
+// 6765382 index finger partial amp
+
+drop if mrn == 185601 | mrn == 3483677 | mrn == 8129267 | mrn == 5684452 | mrn == 7552354 ///
+    | mrn == 4545478 | mrn == 5684452 | mrn == 7031140 | mrn == 2669224 | mrn == 3963805 ///
+    | mrn == 4082022 | mrn == 6757452 | mrn == 6765382
+
+tab MCID tmr_rev_1 if timing_tmr==0, col
+tab maintained_mild_pain_90_days tmr_rev_1 if timing_tmr==1, col
+
+
+
+
+
+
+** FURTHER CLEANING FOR DATABASES MAXIME
+
+drop count_within_mrn-score_pain_intensity_
+drop count
+drop nsaid_postop
+drop complex_ls_pt_1
+drop social_and_medical_h_v_1
+drop limb_upper_lower
+drop amp1_pain_mgmt_prevt___7-amputation_complete
+drop central_sensitizatio_v_39-amputation_82bc09_complete
+drop repeated_time
+drop days_in_mild_pain
+drop days_in_pain_disappearance
+
+
+rename time_amptmr interval_amp_tmr_days
+
+rename fu_tmrtopainscore followup_days
+rename fu_tmrtopainscore_y followup_years
+
+rename tmr_rev_1 underwent_revision_tmr
+
+
+
