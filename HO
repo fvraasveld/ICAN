@@ -1,0 +1,1662 @@
+/*=======================================================================
+project:        HO prevalence study
+Author:       	Floris Raasveld
+Dep.			MGH Orthopaedic Hand & Arm 
+-------------------------------------------------------------------------
+Creation Date:  	01-27-2024
+Modification Date:	
+STATA
+=========================================================================*/
+
+/*** Objectives ***
+
+0. Program set up
+1. Clean data
+2. Generate time variables
+3. descriptive statistics
+4. bivariable analysis
+5. multivariable analysis
+6. conduct vizualization
+
+*/
+
+
+
+
+/*=========================================================================
+ 0: Program set up
+=========================================================================*/
+
+
+// use "HO prevalence - data analysis.do"
+
+
+pwd
+
+cd "/Users/mrh77/Dropbox (Partners HealthCare)/ICAN research/HO studies/Prevalence HO neuroma amputees"
+
+pwd
+
+tab participant_id if bka_date!=. //n=782
+tab participant_id if ho_xray_ho!=. //n=682
+
+
+
+
+/*=========================================================================
+ 1: Clean data
+=========================================================================*/
+
+// drop if not part of this study
+drop if ho_xray_ho==. // this means "drop the patients for whom this variable is empty"
+
+// create a count per mrn
+sort mrn
+
+// Create a variable that counts within each empi, starting from 1
+by mrn: gen count_within_mrn = _n
+
+// Display the results
+tab count_within_mrn // n=642 unique patients, 354bilats (n=642 patients, with 676 limb included)
+
+
+
+
+// drop unnecessary variables
+drop amp1_limb_side-amputation_complete
+drop rev_devices-pain_sketch_15_complete
+drop opioid_use_preop
+drop neurop_pain_med_use_preop
+drop height
+drop weight
+drop social_and_medical_h_v_1-crps_specific_charac_v_84
+
+// fill out the missing values of nerve surgery variables
+replace amp_nerve=1 if amp_nerve==.
+replace amp_nerve_spec=1 if amp_nerve_spec==.
+
+// rename variable names of "checkbox" variables
+** psych cormorb
+rename psych_comorbs___1 depression
+rename psych_comorbs___2 anxiety
+rename psych_comorbs___3 pers_dis
+rename psych_comorbs___4 ptsd
+
+** HO location
+rename ho_xray_location___1 ho_fibular_spike
+rename ho_xray_location___2 ho_fibular_shaft
+rename ho_xray_location___3 ho_tibial_spike
+rename ho_xray_location___4 ho_tibial_shaft
+rename ho_xray_location___5 ho_synostosis
+
+// relabeling checked/unchecked to yes and no for "checkbox variables"
+label define yesno 1 "Yes" 0 "No"
+
+foreach var of varlist depression - ptsd  ho_fibular_spike - ho_synostosis{
+label values `var' yesno
+}
+
+// adjust decimals for mrn
+ format mrn %15.0f
+
+// tabulate variables of interest to get an impression
+tab ho_xray_wr, m
+tab ho_xray_date
+tab ho_xray_ho
+tab record_id
+tab participant_id
+tab mrn 
+tab amp_nerve
+tab ho_xray_ho
+tab opioid_use_postop, m
+tab nsaid_postop
+tab nsaid_postop, m // 50% of this variable is not filled out
+tab amp_nerve, m
+tab amp_nerve_spec, m
+
+
+tab gender if count_within_mrn==1
+
+tab nsaid_postop ho_xray_ho if nsaid_postop !=. , chi row
+
+
+**** check why certain values are empty and if they need to be retrieved from epic
+
+// this code indicates the number of missing variables
+foreach var of varlist record_id - imaging_xray_2_complete {
+tab `var', m
+}
+
+
+// this code indicates the mrns of empty values
+foreach var of varlist vital_status - social_and_medical_h_v_1 {
+tab mrn if `var'==.
+}
+
+** exmaples for how to code for missing values in 1) numerical and 2) string
+// tab mrn if bmi==.
+// tab mrn if zipcode==""
+ 
+tab participant_id if zipcode==""
+sort participant_id
+
+****** prelim results
+
+// What is the occurrence of HO in transtibial amputees?
+
+tabulate ho_xray_ho, m // 373/682 pts have HO - 54.7%
+tabulate ho_xray_wr, m
+tabulate ho_type, m
+
+
+tab ho_fibular_spike if ho_xray_ho ==1
+tab ho_fibular_shaft if ho_xray_ho ==1
+tab ho_tibial_spike if ho_xray_ho ==1
+tab ho_tibial_shaft if ho_xray_ho ==1
+tab ho_synostosis if ho_xray_ho ==1
+
+
+// patients to check with discrepancy
+tab mrn if ho_xray_wr > 0 & ho_xray_ho==0
+
+tab amp
+
+tab amp_nerve
+
+tab age_amputation
+
+
+// gen time variables
+gen time_amp_xray =  ho_xray_date - bka_date
+tab time_amp_xray
+
+
+
+
+
+
+gen time_amp_xray_year = time_amp_xray/365.2425
+
+
+
+tab mrn if  time_amp_xray <0
+
+tab mrn time_amp_xray if ho_xray_ho==1 & time_amp_xray<31
+
+
+
+tab time_amp_xray if ho_xray_ho==1
+
+
+graph bar time_amp_xray ,over(ho_xray_ho)
+graph bar time_amp_xray ,over(ho_xray_ho)
+
+twoway (scatter ho_xray_ho time_amp_xray)
+
+
+
+
+
+
+/// graph showing prevalence of HO in the first month
+graph bar (count) ho_xray_ho if time_amp_xray<31 & ho_xray_ho==1  , over(time_amp_xray)
+
+
+
+
+
+
+
+
+
+
+graph bar (count) ho_xray_ho, over(time_amp_xray) stack
+
+
+gen time_amp_xray_m = time_amp_xray/30.437
+
+tab time_amp_xray_m
+
+tab time_amp_xray
+
+
+gen age_amputation = (bka_date - birth_year) / 365.2425
+
+summ age_amputation if count_within_mrn==1, d
+
+summ age_amputation if count_within_mrn==2, d
+
+summ age_amputation, d
+
+tab mrn if age_amputation<18
+
+
+// check for normality
+
+swilk bmi
+swilk age_amputation
+swilk 
+
+
+
+
+// generate additional variables
+
+gen pain_overall =0
+replace pain_overall =1 if rlp_presence==1
+replace pain_overall =1 if plp_presence==1
+replace pain_overall =1 if np_presence==1
+
+tab rlp_presence
+tab plp_presence
+tab np_presence
+tab pain_overall
+
+
+// check if pain is different for HO
+tab ho_xray_ho pain_overall, chi col
+tab ho_xray_ho plp_presence, chi col
+tab ho_xray_ho rlp_presence, chi col
+tab ho_xray_ho np_presence, chi col
+
+
+
+
+
+
+
+
+swilk time_amp_xray_year
+
+summ time_amp_xray_year, d
+
+tab bka_indication if count_within_mrn==1
+
+ttest time_amp_xray_year, by(ho_xray_ho)
+
+
+
+
+tab time_amp_xray if ho_xray_ho ==1
+
+
+
+
+
+/// gen var for indication of amp1_date
+
+
+
+
+// regarding presence of comorbidites
+gen pvd_dm =0
+replace pvd_dm = 1 if diabetes==1
+replace pvd_dm = 1 if per_vasc_disease==1
+
+tab ho_xray_ho pvd_dm, chi col
+
+
+
+
+
+
+gen indication_trauma =0
+replace indication_trauma=1 if bka_indication ==1
+label values indication_trauma yesno
+
+
+tab ho_xray_ho indication_trauma, chi col
+
+
+  graph bar ho_xray_ho, over(indication_trauma, label) ///
+  title("Proportion of HO presence") ///
+  subtitle (" BKA indication is trauma vs non-trauma") ///
+  blabel (bar) 
+
+
+  
+  
+  
+gen indication_inf_vasc=0
+replace indication_inf_vasc=1 if bka_indication ==2
+replace indication_inf_vasc=1 if bka_indication ==3
+
+label values indication_inf_vasc yesno
+ 
+tab ho_xray_ho indication_inf_vasc, chi col
+
+
+
+
+
+
+
+
+  graph bar ho_xray_ho, over(indication_inf_vasc, label) ///
+  title("Proportion of HO presence") ///
+  subtitle (" BKA indication is infection/vascular versus others") ///
+  blabel (bar) 
+  
+  
+  
+  
+/// time influence
+graph box time_amp_xray_year, over(ho_xray_ho) ///
+ title("Average time between amputation and X-ray") ///
+ subtitle("for patients with and without HO")
+
+
+ 
+ 
+ 
+ //
+  graph bar ho_xray_ho, over(bka_indication, label) ///
+  title("Proportion of HO presence") ///
+  subtitle ("for BKA indication") ///
+  blabel (bar) 
+ 
+ 
+tab bka_date
+
+tab bmi, m
+
+tab mrn if bka_date > 20089
+
+
+/////
+
+// gen variable for whether rev surgery was before or after xray
+
+
+gen time_rev_xray = rev_stump_surg_date - ho_xray_date
+
+tab time_rev_xray
+
+gen rev_surg_timing =.
+replace rev_surg_timing = 1 if time_rev_xray>0 & time_rev_xray!=.
+replace rev_surg_timing = 0 if time_rev_xray<0 & time_rev_xray!=.
+
+
+
+tab rev_surg_timing
+
+tab mrn if time_rev_xray==0
+tab record_id if time_rev_xray==0
+
+
+tab tr_br_inj
+tab sp_co_inj
+
+
+
+
+
+
+//
+gen length_tib_fib = length_tibia - length_fibula
+
+tab length_tib_fib
+
+tab length_tibia, m
+tab length_fibula, m
+tab length_tib_fib, m
+
+tab mrn if length_tibia==.
+tab mrn if length_fibula==.
+tab mrn if length_tib_fib<0
+
+
+// gen rce white non white
+tab race
+
+gen race_white = 0
+replace race_white =1 if race==6
+tab race_white
+
+tab bka_injury_mech
+
+
+tab ho_xray_ho amp_nerve_spec,  chi col
+tab ho_xray_ho surg_type_amp,  chi col
+tab ho_xray_ho surg_type_active,  chi col
+
+
+tab ho_xray_ho amp_nerve, chi col
+
+
+tab mrn if amp_nerve_spec==6
+tab mrn if amp_nerve_spec==7
+
+tab ho_xray_ho amp_nerve, chi col
+
+tab ho_xray_ho amp_nerve, chi col
+
+
+tab ho_xray_ho neuroma_presence, chi col
+
+
+tab 
+
+
+gen passive_active =.
+
+replace passive_active =0 if amp_nerve_spec==1
+replace passive_active =0 if amp_nerve_spec==2
+replace passive_active =1 if amp_nerve_spec==3
+replace passive_active =1 if amp_nerve_spec==4
+replace passive_active =1 if amp_nerve_spec==5
+
+tab ho_xray_ho passive_active, chi col
+tab mrn if passive_active==. // n=14
+
+** Does nerve surgery at time of amputation influence HO prevalence
+
+// total population
+tab ho_xray_ho amp_nerve, chi col // more HO for passive, but not significant
+graph bar ho_xray_ho, over(amp_nerve)
+
+
+  graph bar ho_xray_ho, over(amp_nerve, label) ///
+  title("Proportion of HO presence") ///
+  subtitle ("Passive versus Active nerve surgery at time of amputation") ///
+  blabel (bar) 
+
+
+  
+
+
+// subpopulation, later than 1 jan 2015
+tab ho_xray_ho amp_nerve if bka_date > 20089, chi col // more HO for passive, but not significant
+graph bar ho_xray_ho if bka_date > 20089, over(amp_nerve)
+
+
+
+
+// What proportion of patients with HO are symptomatic?
+
+** sympt neuroma for HO presence
+tab ho_xray_ho neuroma_presence, chi col // this shows  which poportion of patients with HO also had a sympt neuroma (p=0.000)
+graph bar ho_xray_ho, over(neuroma_presence) 
+
+  graph bar ho_xray_ho, over(neuroma_presence, label) ///
+  title("Proportion of patients that had HO present on X-ray ") ///
+  subtitle ("For symptomatic neuroma Absence versus Presence") ///
+  blabel (bar) 
+
+** RLP neuroma for HO presence
+tab ho_xray_ho rlp_presence, chi col // this shows  which poportion of patients with HO also had a sympt neuroma (p=0.583)
+graph bar ho_xray_ho, over(rlp_presence) 
+
+** PLP neuroma for HO presence
+tab ho_xray_ho plp_presence, chi col // this shows  which poportion of patients with HO also had a sympt neuroma (p=0.067)
+graph bar ho_xray_ho, over(plp_presence) 
+
+
+// gen overal pain 
+gen pain_present =0
+replace pain_present =1 if  np_presence==1
+replace pain_present =1 if  rlp_presence==1
+replace pain_present =1 if  plp_presence==1
+replace pain_present =1 if  neuroma_presence==1
+
+
+tab ho_xray_ho pain_present, chi col
+tab ho_xray_ho np_presence, chi col
+tab ho_xray_ho rlp_presence, chi col
+tab ho_xray_ho plp_presence, chi col
+tab ho_xray_ho neuroma_presence, chi col
+
+tab ho_xray_ho pain_present if neuroma_presence==1, chi col
+tab ho_xray_ho np_presence if neuroma_presence==1, chi col
+tab ho_xray_ho rlp_presence if neuroma_presence==1, chi col
+tab ho_xray_ho plp_presence if neuroma_presence==1, chi col
+tab ho_xray_ho neuroma_presence if neuroma_presence==1, chi col
+
+
+
+// distribution of pain over HO present
+tab pain_present ho_xray_ho, chi col
+
+tab pain_present amp_nerve, chi col
+
+// Can we identify risk factors associated with HO presence?
+
+tab ho_xray_ho bka_indication, chi col
+
+tab ho_xray_ho bka_indication, chi col
+
+
+pairwise ho_xray_ho bka_indication, chi bonferroni
+
+
+
+
+  
+
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+//!!!!! EVERYTHING BELOW HAS TO BE ADJUSTED FOR THIS STUDY!
+
+
+///
+
+//dropping unnecessary variables
+drop demographics_and_sub_v_0
+drop surgery_ican_indication-surgery_not_ican
+drop amp1_pain_mgmt_prevt___2-surgery_ican_1_comp_2
+drop tmr_rev_nerves_used___1-proms_other_nonpain_8_complete
+drop pain_outcomes_preop_complete-pain_sketch_15_complete
+drop social_and_medical_h_v_1
+
+
+//renaming variables
+rename birth_year date_birth
+rename alcohol_use alcoholism
+rename smoking_or_nicotine smoking
+rename psych_comorbs___1 depression
+rename psych_comorbs___2 anxiety
+rename psych_comorbs___3 pers_disord
+rename psych_comorbs___4 ptsd
+rename amp1_primary_etiology amp1_indication
+rename amp1_pain_mgmt_prevt___1 type_surg_1
+rename type_surg_1 type_surg_tmr
+rename type_surgery_revision___1 type_rev1_tmr
+rename type_surgery_revision___2 type_rev1_rpni
+rename type_surgery_revision___3 type_rev1_other
+rename amp1_date date_amp1
+rename amp1_date_injury date_amp1_injury
+rename type_surg_tmr surgery_ican_tmr
+rename type_rev1_tmr surgery_ican_rev_tmr
+rename type_rev1_rpni surgery_ican_rev_rpni
+rename type_rev1_other surgery_ican_rev_other
+rename date_surgery_revision date_surgery_rev
+rename date_surgery_disch_rev1 date_surgery_rev_dis
+rename amp1_limb_side laterality
+
+
+// relabeling checked/unchecked to yes and no
+label define yesno 1 "Yes" 0 "No"
+
+foreach var of varlist depression - ptsd surgery_ican_tmr surgery_ican_rev_tmr - surgery_ican_rev_other{
+label values `var' yesno
+}
+
+
+// define limb_upper_lower
+replace limb_upper_lower=2 if amp1_lvl!=1
+replace limb_upper_lower=2 if amp1_lvl!=2
+replace limb_upper_lower=2 if amp1_lvl!=3
+replace limb_upper_lower=2 if amp1_lvl!=8
+replace limb_upper_lower=2 if amp1_lvl!=9
+replace limb_upper_lower=2 if amp1_lvl!=13
+replace limb_upper_lower=2 if amp1_lvl!=14
+
+replace limb_upper_lower=1 if amp1_lvl==1
+replace limb_upper_lower=1 if amp1_lvl==2
+replace limb_upper_lower=1 if amp1_lvl==3
+replace limb_upper_lower=1 if amp1_lvl==8
+replace limb_upper_lower=1 if amp1_lvl==9
+replace limb_upper_lower=1 if amp1_lvl==13
+replace limb_upper_lower=1 if amp1_lvl==14
+
+replace limb_upper_lower=. if amp1_lvl==.
+tab limb_upper_lower
+
+
+// replace 2==0 for no labels
+replace per_vasc_disease=0 if per_vasc_disease==2
+replace ckd=0 if ckd==2
+replace hx_chronic_pain=0 if hx_chronic_pain==2
+
+
+
+
+
+
+
+/*=========================================================================
+ 2: generate variables
+=========================================================================*/
+
+// format dates
+format *date* %td
+
+// generate timing_tmr
+gen diff_amp_surgery = date_surgery_ican - date_amp1
+gen timing_tmr=.
+replace timing_tmr = 1 if diff_amp_surgery<14 & diff_amp_surgery!=.
+replace timing_tmr = 2 if diff_amp_surgery>=14 & diff_amp_surgery!=.
+order timing_tmr, after(surgery_ican_tmr)
+order diff_amp_surgery, after(timing_tmr)
+label define timing_tmr 1 "Primary" 2 "Secondary"
+label values timing_tmr timing_tmr
+
+
+//generating age at amputation
+generate age_amputation = (date_amp1 - date_birth)/365.25
+//generating age at tmr
+generate age_ican_surgery = (date_surgery_ican - date_birth)/365.25
+
+
+
+
+// gen smoking_binary and alcoholism_binary
+gen smoking_binary = smoking
+replace smoking_binary = 0 if smoking_binary==2
+replace smoking_binary = 0 if smoking_binary==3
+label values smoking_binary yesno
+order smoking_binary, after(smoking)
+
+gen alcoholism_binary = alcoholism
+replace alcoholism_binary = 0 if alcoholism_binary==2
+replace alcoholism_binary = 0 if alcoholism_binary==3
+label values alcoholism_binary yesno
+order alcoholism_binary, after(alcoholism)
+
+// gen race_white
+gen race_white =.
+replace race_white = 1 if race==6
+replace race_white = 0 if race!=6
+order race_white, after(race)
+label values race_white yesno
+
+// gen amputee
+gen amputee=.
+replace amputee=1 if timing_tmr==2
+replace amputee=0 if timing_tmr==.
+label values amputee yesno
+order amputee, before(date_amp1)
+
+// gen surgery_revision
+gen surgery_revision =0
+replace surgery_revision =1 if surgery_ican_rev_tmr==1
+replace surgery_revision =1 if surgery_ican_rev_rpni==1
+replace surgery_revision =1 if surgery_ican_rev_other==1
+label values surgery_revision yesno
+order surgery_revision, before(surgery_ican_rev_tmr)
+
+// gen laterality_binary
+gen laterality_binary =.
+replace laterality_binary =1 if laterality==2
+replace laterality_binary =1 if laterality==4
+replace laterality_binary =0 if laterality==1
+replace laterality_binary =0 if laterality==5
+order laterality_binary, after(laterality)
+label define laterality_binary 0 "Left" 1"Right" 
+label values laterality_binary laterality_binary
+
+// gen indication_trauma
+gen indication_trauma =.
+replace indication_trauma =1 if amp1_indication==1
+replace indication_trauma =0 if amp1_indication!=1
+label values indication_trauma yesno
+order indication_trauma, after(amp1_indication)
+
+//gen length of admission
+gen LOA=date_discharge_1 - date_surgery_ican
+order LOA, after(date_discharge_1)
+
+// gen adi_natrank_quartiles
+egen adi_natrank_quartile = cut(adi_natrank), group(4)
+label define quartile_lbl 0 "Q1" 1 "Q2" 2 "Q3" 3 "Q4"
+label values adi_natrank_quartile quartile_lbl
+order adi_natrank_quartile, after(adi_natrank)
+
+tab adi_natrank_quartile if amputee==1
+tab adi_natrank_quartile if amputee==0
+
+
+
+
+/*
+// Replace gender with 1 for specific MRNs
+replace gender = 2 if mrn == 1225411 | mrn == 1444884 | mrn == 1790625 | mrn == 3020224 | mrn == 3594832 | mrn == 4462043 | mrn == 4865894 | mrn == 5728274 | mrn == 6510263 | mrn == 6994810
+
+// Check the changes
+list mrn gender
+
+
+*//////
+
+
+/*=========================================================================
+ 3a: Check for normality of continuous variables
+=========================================================================*/
+
+
+
+
+local varlist tibia_width length_tibia length_fibula length_tib_fib time_amp_xray age_amputation bmi
+
+
+foreach var of local varlist {
+hist `var', freq norm
+qnorm `var'
+swilk `var'
+} 
+
+// all not normal but tibia width
+
+
+
+
+/*=========================================================================
+ 3b: Descriptive statistics
+=========================================================================*/
+
+
+tab count_within_mrn
+// n=632 patients with n=665 limbs
+
+
+** baseline demographics
+
+//numeric 
+
+local varlist bmi age_amputation 
+
+foreach var of local varlist {
+summ `var', d
+} 
+
+
+local varlist gender race military bka_indication
+
+foreach var of local varlist {
+tab `var', m
+} 
+
+
+
+
+local varlist time_amp_xray_year  
+
+foreach var of local varlist {
+summ `var', d
+} 
+
+
+local varlist  ho_type ho_fibular_spike ho_fibular_shaft ho_tibial_spike ho_tibial_shaft ho_synostosis
+
+foreach var of local varlist {
+tab `var' if ho_xray_ho==1
+} 
+
+
+tab ho_fibular_spike ho_tibial_spike, col
+
+
+tab ho_xray_wr if ho_xray_wr!=0
+
+//comorbidities
+local varlist alcoholism_binary smoking_binary opioid_use_preop opioid_use_postop neurop_pain_med_use_preop neurop_pain_med_use_postop diabetes hypothyroidism psych_comorb depression anxiety pers_disord ptsd  per_vasc_disease ckd hx_chronic_pain crps 
+
+foreach var of local varlist {
+tab `var', m
+} 
+
+//surgery characteristics
+local varlist indication_trauma amputee surgery_revision surgery_ican_rev_tmr  surgery_ican_rev_rpni surgery_ican_rev_other  limb_upper_lower indication_trauma amp1_indication amp1_lvl
+
+foreach var of local varlist {
+tab `var' if timing_tmr==2 , m
+} 
+
+
+local varlist   surgery_revision surgery_ican_rev_tmr  surgery_ican_rev_rpni surgery_ican_rev_other     
+
+foreach var of local varlist {
+tab `var' , m
+} 
+
+
+
+local varlist  LOA surgery_revision surgery_ican_rev_tmr  surgery_ican_rev_rpni surgery_ican_rev_other   
+
+foreach var of local varlist {
+tab `var' , m
+} 
+
+
+// continuous variables
+summ age_ican_surgery, d
+summ bmi, d
+
+summ LOA, d
+summ age_amputation, d
+
+
+
+
+egen quartile = cut(score_pain_preop), group(4)
+label define quartile_lblb 0 "Q1" 1 "Q2" 2 "Q3" 3 "Q4"
+label values quartile quartile_lblb
+
+order score_pain_preop, after(quartile)
+
+tab quartile
+
+summ quartile if quartile=="Q1" and amputee==1, d
+
+gen pain_cate=.
+replace pain_cate = 0 if score_pain_preop ==0
+replace pain_cate = 1 if score_pain_preop >0 & score_pain_preop <4
+replace pain_cate = 2 if score_pain_preop >3 & score_pain_preop <7
+replace pain_cate = 3 if score_pain_preop >6 
+
+label define pain_cate 0 "No pain" 1 "Mild" 2 "Modareate" 3 "Severe"
+label values pain_cate pain_cate
+
+
+
+
+
+
+
+
+/*=========================================================================
+ 4: Bivariable analysis
+=========================================================================*/
+
+// for all comparisons that you want to vizualise, use the following code
+
+tab ho_xray_ho amp_nerve, chi col
+
+graph bar ho_xray_ho, over(amp_nerve, label) ///
+title("prevalence of HO for nerve surgical technique") ///
+blabel (bar)
+
+
+
+tab ho_xray_ho neuroma_presence, chi col
+
+graph bar ho_xray_ho, over(neuroma_presence, label) ///
+title("prevalence of HO if also neuromas are present") ///
+blabel (bar)
+
+
+
+
+
+
+*** 4.1 dependent variable == ho_xray_ho ***
+
+// 	DICHOTOMOUS DATA
+
+*** for all patients
+
+//dependent - ho_xray_ho
+local varlist gender vital_status alcoholism_binary smoking_binary opioid_use_postop neurop_pain_med_use_postop nsaid_postop diabetes pvd_dm hypothyroidism psych_comorb depression anxiety pers_dis ptsd per_vasc_disease ckd hx_chronic_pain crps indication_trauma indication_inf_vasc injury_burn military tr_br_inj sp_co_inj cva per_nerve_dis stum_inf knee_replace ho_limb bka_level amp_nerve ho_xray_radiologist rev_surg_timing rev_stump_surg rev_stump_surg_ho ho_xray_ho ho_fibular_spike ho_fibular_shaft ho_tibial_spike ho_tibial_shaft ho_synostosis rlp_presence np_presence plp_presence neuroma_presence pain_present
+
+
+foreach var of local varlist {
+tab  `var' ho_xray_ho, chi col
+} 
+
+tab bka_indication ho_xray_ho, chi row
+tab race_white ho_xray_ho, chi row
+
+ranksum bmi, by(ho_xray_ho)
+
+ttest bmi, by(ho_xray_ho)
+
+
+summ bmi if ho_xray_ho==0, d
+summ bmi if ho_xray_ho==1, d
+
+
+// 	CATEGORICAL DATA
+
+*** for all patients
+
+//dependent - ho_xray_ho
+local varlist race bka_indication bka_injury_mech amp_nerve_spec surg_type_active surg_type_amp rev_stump_surg_type
+
+
+foreach var of local varlist {
+tab  `var' ho_xray_ho, chi col
+} 
+
+
+
+
+//
+rev_stump_surg
+amp_nerve
+
+amp_nerve_spec
+
+indication_inf_vasc
+indication_trauma
+
+pvd_dm
+
+
+local varlist rev_stump_surg amp_nerve amp_nerve_spec indication_inf_vasc indication_trauma pvd_dm bka_level
+
+
+foreach var of local varlist {
+tab  `var' ho_xray_ho, chi col
+} 
+
+
+ranksum time_amp_xray_year, by(ho_xray_ho)
+ranksum tibia_width, by(ho_xray_ho)
+ranksum length_tibia, by(ho_xray_ho)
+ranksum length_fibula, by(ho_xray_ho)
+
+
+summ time_amp_xray_year if ho_xray_ho==0, d
+summ time_amp_xray_year if ho_xray_ho==1, d
+
+tab time_amp_xray  if ho_xray_ho==1
+
+
+hist time_amp_xray if ho_xray_ho==1 & time_amp_xray<1800, bin(30)
+
+
+
+
+
+
+
+ranksum age_amputation, by(ho_xray_ho)
+
+ttest age_amputation, by(ho_xray_ho)
+
+
+summ age_amputation if ho_xray_ho==0, d
+summ age_amputation if ho_xray_ho==1, d
+
+
+// 	CONTINUOUS DATA
+
+*** for all patients
+
+//dependent - ho_xray_ho
+local varlist tibia_width  length_tibia length_fibula length_tib_fib    age_amputation bmi
+
+
+foreach var of local varlist {
+ranksum `var', by(ho_xray_ho) 
+} 
+
+
+// Clear existing graph
+graph drop _all
+
+// Generate histogram of time_amp_xray with specific conditions and smaller bins
+hist time_amp_xray if ho_xray_ho == 1 & time_amp_xray < 1800, bin(30) frequency name(hist)
+
+
+summ age_amputation, d
+
+swilk age_amputation
+
+
+
+
+
+
+
+
+
+// make age binary
+gen age_bin =.
+replace age_bin=1 if age_amputation>52.21736 
+replace age_bin=0 if age_amputation<52.21736 
+
+drop age_bin
+
+tab ho_xray_ho age_bin, chi col
+
+tab ho_xray_ho quartile, chi col
+
+// gen age quartiles
+egen quartile = cut(age_amputation), group(4)
+label define quartile_lblb 0 "Q1" 1 "Q2" 2 "Q3" 3 "Q4"
+label values quartile quartile_lblb
+
+graph bar quartile ho_xray_ho
+
+graph box  ho_xray_ho, over(quartile)
+
+logistic ho_xray_ho tibia_width
+
+
+ranksum ho_xray_ho, by(tibia_width) 
+
+tab ho_xray_ho
+
+
+// this shows the proportions of ho per age quartile
+graph bar ho_xray_ho, over(quartile) 
+graph box adi_natrank, by(opioid_use_postop) title(for all patients)
+
+
+graph bar ho_xray_ho, over(quartile, label) ///
+title("prevalence of HO per age quartile") ///
+blabel (bar)
+
+
+// create cargoized age 1 18-45, 2 45-65, 3 65+
+gen age_cate =0
+replace age_cate = 1 if age_amputation<=45
+replace age_cate = 2 if age_amputation>45 & age_amputation<65
+replace age_cate = 3 if age_amputation>=65
+
+tab age_cate
+
+
+graph bar ho_xray_ho, over(age_cate, label) ///
+title("prevalence of HO per age category") ///
+blabel (bar)
+
+
+gen age_cate_12 = .
+replace age_cate_12 = 1 if age_cate==1
+replace age_cate_12 = 2 if age_cate==2
+
+gen age_cate_23 = .
+replace age_cate_23 = 3 if age_cate==3
+replace age_cate_23 = 2 if age_cate==2
+
+gen age_cate_13 = .
+replace age_cate_13 = 1 if age_cate==1
+replace age_cate_13 = 3 if age_cate==3
+
+
+tab ho_xray_ho age_cate , chi col
+tab ho_xray_ho age_cate_12 , chi col
+tab ho_xray_ho age_cate_13 , chi col
+tab ho_xray_ho age_cate_23 , chi col
+
+
+
+regress ho_xray_ho age_amputation 
+
+
+summ tibia_width, d
+summ length_tibia, d
+summ length_fibula, d
+
+gen delta_tib_fib = length_tibia- length_fibula
+summ delta_tib_fib, d
+
+
+// test for bone lengths
+
+ranksum tibia_width, by(ho_xray_ho) // 0.234
+ranksum length_tibia, by(ho_xray_ho) // 0.196
+ranksum length_fibula, by(ho_xray_ho) // 0.118
+ranksum delta_tib_fib, by(ho_xray_ho) // 0.424
+
+ (7.9-9.0)
+
+summ tibia_width if ho_xray_ho==0, d
+summ  length_tibia if ho_xray_ho==0, d
+summ length_fibula if ho_xray_ho==0, d
+summ delta_tib_fib if ho_xray_ho==0, d
+
+
+// categorize tibia length
+
+gen length_tibia_cate =0
+replace length_tibia_cate = 1 if length_tibia<=80
+replace length_tibia_cate = 2 if length_tibia>80 & length_tibia<120
+replace length_tibia_cate = 3 if length_tibia>=120
+
+tab length_tibia_cate
+
+tab ho_xray_ho length_tibia_cate , chi col
+
+
+tab mrn if ho_xray_wr ==2
+
+/*=========================================================================
+ 5: Multivariable analysis 
+=========================================================================*/
+
+// for dep var = score_pain_preop
+
+// all pts
+regress ho_xray_ho i.gender i.smoking_binary i.amp_nerve i.neuroma_presence age_amputation
+
+logistic ho_xray_ho gender smoking_binary amp_nerve neuroma_presence i.age_cate, or
+
+logistic ho_xray_ho age_bin gender smoking_binary amp_nerve neuroma_presence np_presence, or
+
+
+tab ho_xray_ho gender, chi row
+
+reg ho_xray_ho gender
+
+
+
+reg ho_xray_ho age_bin
+
+scalar coef1 = _b[age_bin]
+
+reg ho_xray_ho age_bin gender
+
+scalar coef2 = _b[age_bin]
+
+scalar pct_change = (coef2 - coef1) / coef1 * 100
+
+di "Percentage Change:" pct_change
+
+
+
+reg ho_xray_ho age_amputation
+
+scalar coef1_1 = _b[age_amputation]
+
+reg ho_xray_ho age_amputation gender
+
+scalar coef2_2 = _b[age_amputation]
+
+scalar pct_change = (coef2_2 - coef1_1) / coef1_1 * 100
+
+di "Percentage Change:" pct_change
+
+
+
+
+
+reg ho_xray_ho gender
+
+scalar coef1_2 = _b[gender]
+
+reg ho_xray_ho gender age_bin
+
+scalar coef2_2 = _b[gender]
+
+scalar pct_change = (coef2_2 - coef1_2) / coef1_2 * 100
+
+di "Percentage Change:" pct_change
+
+
+
+reg ho_xray_ho gender
+
+scalar coef1_3 = _b[gender]
+
+reg ho_xray_ho gender age_amputation
+
+scalar coef2_3 = _b[gender]
+
+scalar pct_change = (coef2_3 - coef1_3) / coef1_1 * 100
+
+di "Percentage Change:" pct_change
+
+
+
+
+
+
+
+
+///////
+
+summ age_amputation, d
+
+
+tab amp_nerve ho_xray_ho, chi col row
+
+tab ho_xray_ho amp_nerve, chi col
+
+tab ho_type if ho_xray_ho==1, m
+
+
+
+
+
+//
+tab time_amp_xray_year ho_xray_ho
+
+gen time_amp_xray_days = ho_xray_date - bka_date
+tab time_amp_xray_days
+
+
+tab time_amp_xray_days ho_xray_ho
+
+
+
+tab mrn if time_amp_xray_days<185 & ho_xray_ho==1
+
+tab ho_xray_date mrn if time_amp_xray_days<185 & ho_xray_ho==1
+
+tab time_amp_xray_days if mrn == 1134811
+
+tab ho_xray_date if mrn==1134811 
+
+/*
+------------+-----------------------------------
+    1134811 |          1 1435
+    1255103 |          0 74
+    1362032 |          0 46
+    1479909 |          0 12
+    1981232 |          0 145
+    2114267 |          0 170
+    2134176 |          0 69
+    2193705 |          0 99
+    2250829 |          0  97  
+    2388152 |          1 162 --> clearly yes  
+    2845900 |          0 99
+    4113648 |          0 81
+    4134734 |          0 37
+    4852660 |          0 32
+    4980091 |          0 58
+    4991598 |          1  126
+    5047413 |          1 104
+    5130879 |          0  10
+    5311023 |          0 62
+    5570730 |          1 182
+    6000613 |          0 137
+    6127322 |          0 120
+    6137553 |          0 30
+    6331331 |          0 42
+    6628066 |          0 180
+    6694068 |          1 142
+    6969548 |          0 29
+    7012265 |          0 173
+    7237146 |          0 156
+    7287173 |          0 87
+   1.01e+10 |        
+   1.01e+10 |      
+   1.01e+10 |        
+------------+-----------------------------------
+
+*/
+
+
+* Assuming the variable name for the MRN is "mrn" and for the time_amp_xray_days is "time_amp_xray_days"
+
+* First, set ho_xray_ho to 0 for all rows where time_amp_xray_days < 185
+replace ho_xray_ho = 0 if time_amp_xray_days < 185
+
+* Now, set ho_xray_ho to 1 for the specified MRNs
+* Assuming the specified MRNs are 1134811, 2388152, 4991598, 5047413, 5570730, 6694068
+replace ho_xray_ho = 1 if inlist(mrn, 1134811, 2388152, 4991598, 5047413, 5570730, 6694068)
+
+replace ho_xray_ho = 0 if mrn==1134811  & ho_limb_side==2
+
+
+
+
+
+
+* List the values of time_amp_xray_days for the specified MRNs
+tabulate time_amp_xray_days if inlist(mrn, 1134811, 1255103, 1362032, 1479909, 1981232, 2114267, 2134176, 2193705, 2250829, 2388152, 2845900, 4113648, 4134734, 4852660, 4980091, 4991598, 5047413, 5130879, 5311023, 5570730, 6000613, 6127322, 6137553, 6331331, 6628066, 6694068, 6969548, 7012265, 7237146, 7287173)
+
+* Save the results to a variable
+local result = r(table)
+
+* Display the result
+di "`result'"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*** THIS IS NOT UPDATED
+
+
+
+// sec tmr pts
+regress score_pain_preop opioid_use_preop opioid_use_postop diabetes psych_comorb depression  adi_natrank LOA  if timing_tmr==2 
+
+// nom  amps
+regress score_pain_preop smoking_binary age_ican_surgery LOA if timing_tmr==. 
+
+
+
+// for dep var = score_pain_preop
+
+// sec tmr pts
+regress diff_amp_surgery psych_comorb anxiety i.alcoholism i.amp1_indication age_amputation if timing_tmr==2 
+
+
+regress diff_amp_surgery score_pain_preop adi_natrank if timing_tmr==2 
+
+psych_comorb anxiety i.alcoholism i.amp1_indication age_amputation if timing_tmr==2 
+
+
+
+
+
+
+//for categorical data use logistic regression inc. odds ratio
+logit  adi_natrank opioid_use_postop if timing_tmr == 2, or
+
+	
+
+/*=========================================================================
+ 6: Visualization
+=========================================================================*/
+
+// preop pain per adi
+graph box score_pain_preop, over(adi_natrank_quartile) title(for all patients (n=163))
+graph box score_pain_preop if timing_tmr==2, over(adi_natrank_quartile) title(for secondary TMR patients(n=119))
+graph box score_pain_preop if timing_tmr==., over(adi_natrank_quartile) title(for all non-amputee (n=43))
+
+
+
+
+
+
+
+// time interval amputation-to-tmr pain per adi
+graph box diff_amp_surgery if timing_tmr==2, over(adi_natrank_quartile) title(for secondary TMR patients(n=119))
+
+twoway ///
+    (scatter adi_natrank diff_amp_surgery  ) ///
+    (lfit adi_natrank diff_amp_surgery ), ///
+    xtitle("time (days)") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with diff_amp_surgery") ///
+	subtitle("for secondary TMR patients, n=119") 
+
+
+
+
+
+graph box adi_natrank, by(opioid_use_postop) title(for all patients)
+graph box adi_natrank if timing_tmr==2, by(opioid_use_postop) title(for secondary TMR)
+graph box adi_natrank if timing_tmr==., by(opioid_use_postop) title(for non-amputees)
+graph box adi_natrank, over(insurance)
+
+
+
+
+*** 
+
+// all patients
+
+twoway ///
+    (scatter adi_natrank bmi ) ///
+    (lfit adi_natrank bmi), ///
+    xtitle("BMI") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with BMI") ///
+	subtitle("for all Patients, n=158/162") ///
+	text(-15 10 "p=0.0012, ρ=0.2554", size(small) color(blue))
+	
+twoway ///
+    (scatter adi_natrank score_pain_preop) ///
+    (lfit adi_natrank score_pain_preop), ///
+    xtitle("Preop Pain Score (0-10)") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with preoperative pain") ///
+	subtitle("for all Patients, n=162") ///
+	text(-15 1 "p=0.0023, ρ=0.2379", size(small) color(blue))
+	
+twoway ///
+    (scatter score_pain_preop adi_natrank ) ///
+    (lpoly score_pain_preop adi_natrank), ///
+    xtitle("Preop Pain Score (0-10)") ytitle("National ADI") ///
+	legend(off) 	///
+	title("Association of National ADI with preoperative pain") ///
+	subtitle("for all Patients, LOESS n=162") 
+	
+
+twoway ///
+    (lowess score_pain_preop adi_natrank), ///
+    ytitle("Preop Pain Score (0-10)") xtitle("National ADI") ///
+    legend(off) ///
+    title("Association of National ADI with preoperative pain") ///
+    subtitle("for all Patients, n=162") ///
+    xscale(range(0 15))
+	
+twoway ///
+    (lpoly score_pain_preop adi_natrank), ///
+    ytitle("Preop Pain Score (0-10)") xtitle("National ADI") ///
+    legend(off) ///
+    title("Association of National ADI with preoperative pain") ///
+    subtitle("for all Patients, LOWESS n=162") ///
+    xscale(range(0 15))	
+	
+	
+twoway ///
+    (scatter adi_natrank score_pain_intensity_preop) ///
+    (lfit adi_natrank score_pain_intensity_preop), ///
+    xtitle("Preop Pain Intensity") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with preoperative pain intensity") ///
+	subtitle("for all Patients, n=69/162") ///
+	text(-15 45 "p=0.0345, ρ=0.2549", size(small) color(blue))
+
+spearman adi_natrank bmi 
+spearman adi_natrank score_pain_preop  
+spearman adi_natrank score_pain_intensity_preop  
+	
+
+//  Secondary TMR patients
+
+twoway ///
+    (scatter adi_natrank bmi if timing_tmr==2) ///
+    (lfit adi_natrank bmi if timing_tmr==2), ///
+    xtitle("BMI") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with BMI") ///
+	subtitle("for Secondary TMR Patients, n=119/119") ///
+	text(-15 10 "p=0.0002, ρ=0.3396", size(small) color(blue))
+	
+twoway ///
+    (scatter adi_natrank score_pain_preop if timing_tmr==2) ///
+    (lfit adi_natrank score_pain_preop if timing_tmr==2), ///
+    xtitle("Preop Pain Score (0-10)") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with preoperative pain") ///
+	subtitle("for Secondary TMR Patients, n=119") ///
+	text(-15 1 "p=0.0013, ρ=0.2917", size(small) color(blue))
+	
+twoway ///
+    (scatter adi_natrank score_pain_intensity_preop if timing_tmr==2) ///
+    (lfit adi_natrank score_pain_intensity_preop if timing_tmr==2), ///
+    xtitle("Preop Pain Intensity") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with preoperative pain intensity") ///
+	subtitle("for Secondary TMR Patients, n=53/119") ///
+	text(-15 45 "p=0.0094, ρ=0.3535", size(small) color(blue))
+
+spearman adi_natrank bmi  if timing_tmr==2
+spearman adi_natrank score_pain_preop  if timing_tmr==2
+spearman adi_natrank score_pain_intensity_preop  if timing_tmr==2
+	
+//  Non-amputee patients
+
+twoway ///
+    (scatter adi_natrank bmi if timing_tmr==.) ///
+    (lfit adi_natrank bmi if timing_tmr==.), ///
+    xtitle("BMI") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with BMI") ///
+	subtitle("for non-amputees, n=43") ///
+	text(-15 10 "p=0.0012, ρ=0.2554", size(small) color(blue))
+	
+twoway ///
+    (scatter adi_natrank score_pain_preop if timing_tmr==.) ///
+    (lfit adi_natrank score_pain_preop if timing_tmr==.), ///
+    xtitle("Preop Pain Score (0-10)") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with preoperative pain") ///
+	subtitle("for non-amputees, n=43") ///
+	text(-15 1 "p=0.0023, ρ=0.2379", size(small) color(blue))
+	
+twoway ///
+    (scatter adi_natrank score_pain_intensity_preop if timing_tmr==.) ///
+    (lfit adi_natrank score_pain_intensity_preop if timing_tmr==.), ///
+    xtitle("Preop Pain Intensity") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with preoperative pain intensity") ///
+	subtitle("for non-amputees, n=43") ///
+	text(-15 45 "p=0.0345, ρ=0.2549", size(small) color(blue))
+
+
+
+
+// box plots for quartile ADI
+graph bar adi_natrank_quartile
+graph box score_pain_preop, over(adi_natrank_quartile)
+
+graph box score_pain_preop, over(adi_natrank_quartile) title (Pre-operative pain score for ADI) subtitle(For all patients)
+
+graph box score_pain_preop if amputee==1, over(adi_natrank_quartile) title (Pre-operative pain score for ADI) subtitle(For amputees)
+
+graph box score_pain_preop if amputee==0, over(adi_natrank_quartile) title (Pre-operative pain score for ADI) subtitle(For non-amputees)
+
+
+
+
+
+
+
+
+
+// no subset
+spearman adi_natrank score_pain_preop
+spearman adi_statrank score_pain_preop
+
+twoway(scatter adi_natrank score_pain_preop ) (lfit adi_natrank score_pain_preop)
+twoway(scatter adi_statrank score_pain_preop ) (lfit adi_statrank score_pain_preop)
+
+
+
+gen time_amp_xray
+	
+
+	
+drop if amp1_primary_etiology!=1	
+drop if amp1_date_injury ==.
+	
+drop participant_id	
+drop bmi-social_and_medical_h_v_1
+drop date_discharge_1-timing_tmr
+
+export 
+
+export excel "output2.xlsx", replace sheet("SheetName") firstrow(variable_list) 
+
+export excel "C:\Path\To\Your\File.xlsx", firstrow(variables) replace
+
+
+export excel "for_R.xlsx", firstrow(variables) replace
+
+
+
+// if amputee
+spearman adi_natrank score_pain_preop if timing_tmr!=.
+spearman adi_statrank score_pain_preop if timing_tmr!=.
+
+twoway(scatter adi_natrank score_pain_preop if timing_tmr!=. ) (lfit adi_natrank score_pain_preop if timing_tmr!=.)
+twoway(scatter adi_statrank score_pain_preop if timing_tmr!=.) (lfit adi_statrank score_pain_preop if timing_tmr!=.)
+
+tab timing_tmr, m // 125 secondary, 48 non
+
+
+
+
+
+// if secondary
+spearman adi_natrank score_pain_preop if timing_tmr==2 // p=0.0030, rho 0.2735
+spearman adi_statrank score_pain_preop if timing_tmr==2 // p=0.0447, rho 0.1868
+
+
+
+regress adi_natrank score_pain_preop if timing_tmr==2
+logit adi_natrank score_pain_preop if timing_tmr==2
+
+
+twoway ///
+    (scatter adi_natrank score_pain_preop if timing_tmr==2) ///
+    (lfit adi_natrank score_pain_preop if timing_tmr==2), ///
+    xtitle("Preop Pain Score (0-10)") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of National ADI with preoperative pain") ///
+	subtitle("for Secondary TMR Patients, n=116") ///
+	text(-15 1 "p=0.0030, ρ=0.2736", size(small) color(blue))
+
+	
+
+twoway ///
+    (scatter adi_statrank score_pain_preop if timing_tmr == 2) ///
+    (lfit adi_statrank score_pain_preop if timing_tmr == 2), ///
+    xtitle("Preop Pain Score (0-10)") ytitle("State ADI") ///
+    legend(off) ///
+    title("Association of State ADI with preoperative pain") ///
+    subtitle("for Secondary TMR Patients, n=116") ///
+	text(-1.5 1 "p=0.0447, ρ=0.1868", size(small) color(blue))  
+	
+	///
+	ttext 
+
+graph text ///
+    "Your Text Here" ///
+    at(5, 10) ///
+    size(small) ///
+    color(navy)
+	
+
+	
+	
+	
+twoway ///
+    (scatter adi_statrank score_pain_intensity_preop if timing_tmr==2) ///
+    (lfit adi_statrank score_pain_intensity_preop if timing_tmr==2), ///
+    xtitle("") ytitle("National ADI") ///
+	legend(off) ///
+	title("Association of State ADI with [...]") ///
+	subtitle("for Secondary TMR Patients, n=116") ///
+	text(-15 1 "p=0.0030, ρ=0.2736", size(small) color(blue))
+	
+	
+
+
+
+// if non amputee
+
+spearman adi_natrank score_pain_preop if timing_tmr==. // p=0.8551, rho 0.02787
+spearman adi_statrank score_pain_preop if timing_tmr==. // p=4953, rho 0.1068
+
+twoway(scatter adi_natrank score_pain_preop if timing_tmr==. ) (lfit adi_natrank score_pain_preop if timing_tmr==.)
+twoway(scatter adi_statrank score_pain_preop if timing_tmr==.) (lfit adi_statrank score_pain_preop if timing_tmr==.)
+
+summ  adi_natrank if timing_tmr==., d 
+summ  adi_natrank if timing_tmr==2, d
+
+
+
+
+
+
+// pain ADI time_to_tmr
+regress adi_natrank score_pain_preop diff_amp_surgery if timing_tmr==2
+regress adi_statrank score_pain_preop diff_amp_surgery if timing_tmr==2
+
+twoway(scatter adi_natrank diff_amp_surgery if timing_tmr==2 ) (lfit adi_natrank diff_amp_surgery if timing_tmr==2)
+twoway(scatter adi_statrank diff_amp_surgery if timing_tmr==2) (lfit adi_statrank diff_amp_surgery if timing_tmr==2)
+
+
